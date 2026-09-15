@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitnik Rule Forge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #17181f;
+    --panel: #1f212a;
+    --panel-2: #262835;
+    --line: rgba(233,231,221,0.09);
+    --ink: #e9e7dd;
+    --ink-dim: #a5a3ab;
+    --card: #e7dcb8;
+    --card-ink: #211d12;
+    --data: #4d7fa8;
+    --flow: #3f9d7e;
+    --action: #c2703a;
+    --score: #d1a736;
+    --danger: #b0503f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;}
+  .app{max-width:1180px;margin:0 auto;padding:20px 16px 60px;}
+  header.top{display:flex;flex-direction:column;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:14px;}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:32px;letter-spacing:0.2px;margin:0;color:var(--ink);}
+  .subtitle{color:var(--ink-dim);font-size:14px;}
+  .game-name{margin-top:10px;display:flex;align-items:center;gap:8px;}
+  .game-name input{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:7px 10px;border-radius:3px;width:260px;}
+  .game-name label{font-size:12px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.06em;}
+  .project-bar{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .project-bar label{font-size:12px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.06em;}
+  .project-bar select{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:6px 8px;border-radius:3px;}
+
+  nav.tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid var(--line);}
+  nav.tabs button{background:none;border:none;color:var(--ink-dim);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;padding:9px 16px;cursor:pointer;border-bottom:2px solid transparent;}
+  nav.tabs button.active{color:var(--ink);border-bottom-color:var(--score);}
+
+  section.tab{display:none;}
+  section.tab.active{display:block;}
+
+  /* ---- Flow tab ---- */
+  .flow-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center;}
+  .flow-toolbar .hint{color:var(--ink-dim);font-size:12.5px;margin-left:auto;}
+  select, .btn{font-family:'Inter',sans-serif;font-size:13px;}
+  .btn{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);padding:7px 12px;border-radius:3px;cursor:pointer;}
+  .btn:hover{border-color:#5b5d6c;}
+  .btn.primary{background:var(--score);color:#1b1707;border-color:var(--score);font-weight:600;}
+  .btn.primary:hover{filter:brightness(1.08);}
+  .btn.danger{color:var(--danger);}
+  select{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);padding:7px 8px;border-radius:3px;}
+
+  .canvas-wrap{position:relative;height:420px;background:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px), var(--panel);
+    background-size:24px 24px;border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  #edgeLayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  .node{position:absolute;min-width:120px;padding:8px 10px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;cursor:grab;user-select:none;color:#0d0d0d;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:1px solid rgba(0,0,0,0.25);}
+  .node.selected{outline:2px solid var(--ink);outline-offset:2px;}
+  .node .kind{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:0.08em;display:block;opacity:0.7;}
+  .node[data-kind="DATA"]{background:var(--data);}
+  .node[data-kind="FLOW"]{background:var(--flow);}
+  .node[data-kind="ACTION"]{background:var(--action);}
+  .node[data-kind="SCORE"]{background:var(--score);}
+  .legend{display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--ink-dim);flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .swatch{width:10px;height:10px;border-radius:2px;display:inline-block;}
+
+  /* ---- Cards tab ---- */
+  .cards-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;}
+  .rule-card{background:var(--card);color:var(--card-ink);border-radius:2px;padding:12px 14px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.55;box-shadow:0 3px 8px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.06);position:relative;}
+  .rule-card .tag{position:absolute;top:0;right:0;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;color:#fff;padding:2px 7px;border-bottom-left-radius:3px;}
+  .rule-card .title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin:0 0 6px;padding-right:60px;}
+  .rule-card .gherkin b{color:#4a3d16;}
+  .rule-card .card-actions{margin-top:8px;display:flex;gap:6px;}
+  .rule-card .card-actions button{font-size:11px;padding:3px 7px;background:rgba(0,0,0,0.08);border:none;border-radius:2px;cursor:pointer;color:#3a331c;}
+  .empty-state{color:var(--ink-dim);font-size:13px;padding:20px 0;}
+
+  .card-form{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:14px;margin-bottom:16px;display:none;}
+  .card-form.open{display:block;}
+  .card-form label{display:block;font-size:11px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.06em;margin:8px 0 3px;}
+  .card-form input, .card-form textarea, .card-form select{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 9px;border-radius:3px;resize:vertical;}
+  .card-form .row{display:flex;gap:10px;}
+  .card-form .row > div{flex:1;}
+  .card-form .actions{margin-top:12px;display:flex;gap:8px;}
+
+  /* ---- Generate tab ---- */
+  .summary{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:14px;font-size:13px;color:var(--ink-dim);margin-bottom:14px;}
+  .summary b{color:var(--ink);}
+  .gen-actions{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .status{font-size:12.5px;color:var(--ink-dim);}
+  .code-panel{background:#0f1015;border:1px solid var(--line);border-radius:4px;}
+  .code-panel textarea{width:100%;min-height:340px;background:transparent;border:none;color:#d6f5e3;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.55;padding:14px;resize:vertical;}
+  .review-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap;gap:10px;}
+  .review-bar label{font-size:12.5px;color:var(--ink-dim);display:flex;gap:6px;align-items:center;}
+  .commit-log{margin-top:18px;}
+  .commit-log h3{font-family:'Barlow Condensed',sans-serif;font-size:18px;margin:0 0 8px;}
+  .commit-item{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-dim);padding:6px 0;border-bottom:1px solid var(--line);}
+  .commit-item span.id{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <h1>Bitnik Rule Forge</h1>
+    <div class="subtitle">Desenha o fluxo → escreve os cartões de lógica (Gherkin) → gera o dummy PWA com apoio de LLM → revê e faz commit.</div>
+    <div class="game-name">
+      <label for="gameName">Jogo</label>
+      <input id="gameName" type="text" value="Jogo Dummy" placeholder="nome do jogo">
+    </div>
+    <div class="project-bar">
+      <label for="projectSelect">Projetos guardados</label>
+      <select id="projectSelect"><option value="">— novo / não guardado —</option></select>
+      <button class="btn" id="loadProjectBtn">Carregar</button>
+      <button class="btn" id="saveAsBtn">Guardar como…</button>
+      <button class="btn primary" id="saveProjectBtn">Guardar</button>
+      <button class="btn danger" id="deleteProjectBtn">Apagar</button>
+      <button class="btn" id="loadCapivarasBtn">Exemplo: Capivaras</button>
+      <span class="status" id="projectStatus"></span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="flow">1 · Fluxo</button>
+    <button class="tab-btn" data-tab="cards">2 · Cartões de Lógica</button>
+    <button class="tab-btn" data-tab="gen">3 · Gerar &amp; Rever</button>
+  </nav>
+
+  <!-- FLOW TAB -->
+  <section class="tab active" id="tab-flow">
+    <div class="flow-toolbar">
+      <select id="nodeKind">
+        <option value="DATA">DATA</option>
+        <option value="FLOW">FLOW</option>
+        <option value="ACTION">ACTION</option>
+        <option value="SCORE">SCORE</option>
+      </select>
+      <button class="btn primary" id="addNodeBtn">+ Nó</button>
+      <button class="btn" id="linkModeBtn">Ligar nós</button>
+      <button class="btn danger" id="deleteNodeBtn">Apagar selecionado</button>
+      <span class="hint">Arrasta para mover · clica num nó para selecionar · "Ligar nós" e clica em dois nós para os ligar</span>
+    </div>
+    <div class="canvas-wrap" id="canvas">
+      <svg id="edgeLayer"></svg>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--data)"></i>DATA — estado/condições</span>
+      <span><i class="swatch" style="background:var(--flow)"></i>FLOW — sequência/turnos</span>
+      <span><i class="swatch" style="background:var(--action)"></i>ACTION — jogadas do jogador</span>
+      <span><i class="swatch" style="background:var(--score)"></i>SCORE — efeitos/pontuação</span>
+    </div>
+  </section>
+
+  <!-- CARDS TAB -->
+  <section class="tab" id="tab-cards">
+    <div class="cards-toolbar">
+      <div class="hint" style="color:var(--ink-dim);font-size:12.5px;">Cada cartão é uma regra em Gherkin, ligada a um tipo do taxonomy BGE.</div>
+      <button class="btn primary" id="newCardBtn">+ Cartão</button>
+    </div>
+
+    <div class="card-form" id="cardForm">
+      <div class="row">
+        <div>
+          <label>Título</label>
+          <input id="cf-title" placeholder="Ex: Completar objetivo Trio">
+        </div>
+        <div>
+          <label>Tipo (taxonomy)</label>
+          <select id="cf-kind">
+            <option value="DATA">DATA</option>
+            <option value="FLOW">FLOW</option>
+            <option value="ACTION">ACTION</option>
+            <option value="SCORE">SCORE</option>
+          </select>
+        </div>
+      </div>
+      <label>Dado que…</label>
+      <textarea id="cf-given" rows="2" placeholder="Dado que o jogador tem 2 cartas Charm da mesma cor em jogo"></textarea>
+      <label>Quando…</label>
+      <textarea id="cf-when" rows="2" placeholder="Quando o jogador joga uma terceira carta Charm da mesma cor"></textarea>
+      <label>Então…</label>
+      <textarea id="cf-then" rows="2" placeholder="Então o objetivo Trio é completado e o jogador ganha 3 pontos"></textarea>
+      <div class="actions">
+        <button class="btn primary" id="saveCardBtn">Guardar cartão</button>
+        <button class="btn" id="cancelCardBtn">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="card-grid" id="cardGrid"></div>
+    <div class="empty-state" id="cardsEmpty">Ainda sem cartões. Cria o primeiro com "+ Cartão".</div>
+  </section>
+
+  <!-- GENERATE TAB -->
+  <section class="tab" id="tab-gen">
+    <div class="summary" id="genSummary"></div>
+    <div class="gen-actions">
+      <button class="btn primary" id="generateBtn">Gerar dummy PWA com LLM</button>
+      <span class="status" id="genStatus"></span>
+    </div>
+    <div class="code-panel">
+      <textarea id="codeOut" spellcheck="false" placeholder="O código gerado aparece aqui — podes editar antes de confirmar."></textarea>
+      <div class="review-bar">
+        <label><input type="checkbox" id="reviewedCheck"> Revi o código gerado</label>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" id="downloadBtn">Descarregar .html</button>
+          <button class="btn primary" id="commitBtn">Commit às regras</button>
+        </div>
+      </div>
+    </div>
+    <div class="commit-log">
+      <h3>Histórico de commits</h3>
+      <div id="commitList"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ---------- state ----------
+let state = {
+  nodes: [],   // {id, kind, label, x, y}
+  edges: [],   // {from, to}
+  cards: [],   // {id, kind, title, given, when, then}
+  commits: []  // {id, ts, gameName, code, cardCount, nodeCount}
+};
+// Persistência: usa window.storage quando corre dentro do preview do Claude.ai;
+// faz fallback para localStorage quando o ficheiro é aberto diretamente no browser.
+const storageAdapter = (window.storage && typeof window.storage.get === 'function')
+  ? window.storage
+  : {
+      async get(key){
+        const v = localStorage.getItem(key);
+        return v === null ? null : {key, value: v};
+      },
+      async set(key, value){
+        localStorage.setItem(key, value);
+        return {key, value};
+      },
+      async delete(key){
+        localStorage.removeItem(key);
+        return {key, deleted:true};
+      },
+      async list(prefix){
+        const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix));
+        return {keys};
+      }
+    };
+
+let selectedNode = null;
+let linkMode = false;
+let linkFirst = null;
+let editingCardId = null;
+let nodeSeq = 1, cardSeq = 1;
+let currentSlug = null; // null = working copy not tied to a saved project
+
+const INDEX_KEY = 'bitnik-rule-forge:projects:index';
+const CURRENT_KEY = 'bitnik-rule-forge:current-slug';
+const projectKey = slug => 'bitnik-rule-forge:project:'+slug;
+
+function slugify(name){
+  return (name||'projeto').toLowerCase().trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'projeto';
+}
+
+async function getIndex(){
+  try{
+    const res = await storageAdapter.get(INDEX_KEY, false);
+    return res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){ return []; }
+}
+async function setIndex(list){
+  try{ await storageAdapter.set(INDEX_KEY, JSON.stringify(list), false); }catch(e){}
+}
+
+async function refreshProjectSelect(){
+  const list = await getIndex();
+  const sel = document.getElementById('projectSelect');
+  sel.innerHTML = '<option value="">— novo / não guardado —</option>';
+  list.sort((a,b)=>a.name.localeCompare(b.name)).forEach(p=>{
+    const opt = document.createElement('option');
+    opt.value = p.slug; opt.textContent = p.name;
+    if(p.slug === currentSlug) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadState(){
+  currentSlug = null;
+  try{
+    const cur = await storageAdapter.get(CURRENT_KEY, false);
+    if(cur && cur.value) currentSlug = cur.value;
+  }catch(e){}
+  if(currentSlug){
+    await loadProject(currentSlug, true);
+  } else {
+    await refreshProjectSelect();
+    render();
+  }
+}
+
+async function loadProject(slug, silent){
+  try{
+    const res = await storageAdapter.get(projectKey(slug), false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = Object.assign({nodes:[],edges:[],cards:[],commits:[]}, parsed);
+      document.getElementById('gameName').value = state.gameName || 'Jogo Dummy';
+      currentSlug = slug;
+      nodeSeq = 1 + state.nodes.reduce((m,n)=>Math.max(m, parseInt((n.id||'n0').slice(1))||0), 0);
+      cardSeq = 1 + state.cards.reduce((m,c)=>Math.max(m, parseInt((c.id||'c0').slice(1))||0), 0);
+      await storageAdapter.set(CURRENT_KEY, slug, false);
+      if(!silent) document.getElementById('projectStatus').textContent = 'Projeto "'+state.gameName+'" carregado.';
+    }
+  }catch(e){ console.error(e); document.getElementById('projectStatus').textContent = 'Não foi possível carregar.'; }
+  await refreshProjectSelect();
+  render();
+  renderCommits();
+}
+
+async function saveState(){
+  // autosave: only persists if this working copy is already tied to a saved project
+  state.gameName = document.getElementById('gameName').value;
+  if(!currentSlug) return;
+  try{
+    await storageAdapter.set(projectKey(currentSlug), JSON.stringify(state), false);
+    await bumpIndex(currentSlug, state.gameName);
+  }catch(e){ console.error('Falha ao guardar', e); }
+}
+
+async function bumpIndex(slug, name){
+  const list = await getIndex();
+  const existing = list.find(p=>p.slug===slug);
+  if(existing){ existing.name = name; existing.updatedAt = Date.now(); }
+  else { list.push({slug, name, updatedAt: Date.now()}); }
+  await setIndex(list);
+}
+
+async function saveProjectAs(){
+  const name = prompt('Nome para este projeto:', document.getElementById('gameName').value || 'Jogo Dummy');
+  if(!name) return;
+  document.getElementById('gameName').value = name;
+  state.gameName = name;
+  let slug = slugify(name);
+  const list = await getIndex();
+  let n = 1;
+  while(list.some(p=>p.slug===slug)){ n++; slug = slugify(name)+'-'+n; }
+  currentSlug = slug;
+  await storageAdapter.set(projectKey(slug), JSON.stringify(state), false);
+  await bumpIndex(slug, name);
+  await storageAdapter.set(CURRENT_KEY, slug, false);
+  await refreshProjectSelect();
+  document.getElementById('projectStatus').textContent = 'Guardado como "'+name+'".';
+}
+
+async function saveProject(){
+  if(!currentSlug){ await saveProjectAs(); return; }
+  await saveState();
+  document.getElementById('projectStatus').textContent = 'Guardado.';
+}
+
+async function deleteProject(){
+  const sel = document.getElementById('projectSelect');
+  const slug = sel.value || currentSlug;
+  if(!slug){ document.getElementById('projectStatus').textContent = 'Nada para apagar.'; return; }
+  if(!confirm('Apagar este projeto guardado? Não pode ser desfeito.')) return;
+  try{
+    const list = (await getIndex()).filter(p=>p.slug!==slug);
+    await setIndex(list);
+    // window.storage has no bulk-delete; overwrite with empty marker via delete()
+    await storageAdapter.delete(projectKey(slug), false);
+    if(slug === currentSlug){
+      currentSlug = null;
+      await storageAdapter.delete(CURRENT_KEY, false).catch(()=>{});
+      state = {nodes:[],edges:[],cards:[],commits:[]};
+      document.getElementById('gameName').value = 'Jogo Dummy';
+    }
+    await refreshProjectSelect();
+    render(); renderCommits();
+    document.getElementById('projectStatus').textContent = 'Projeto apagado.';
+  }catch(e){ console.error(e); document.getElementById('projectStatus').textContent = 'Falha ao apagar.'; }
+}
+
+// ---------- tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab === 'gen') renderSummary();
+  });
+});
+
+// ---------- flow canvas ----------
+const canvas = document.getElementById('canvas');
+const edgeLayer = document.getElementById('edgeLayer');
+
+document.getElementById('addNodeBtn').addEventListener('click', ()=>{
+  const kind = document.getElementById('nodeKind').value;
+  const id = 'n'+(nodeSeq++);
+  state.nodes.push({id, kind, label:kind+' '+id.slice(1), x: 30+Math.random()*260, y: 30+Math.random()*260});
+  saveState(); render();
+});
+
+document.getElementById('linkModeBtn').addEventListener('click', (e)=>{
+  linkMode = !linkMode;
+  linkFirst = null;
+  e.target.textContent = linkMode ? 'A ligar… (clica em 2 nós)' : 'Ligar nós';
+  e.target.classList.toggle('primary', linkMode);
+});
+
+document.getElementById('deleteNodeBtn').addEventListener('click', ()=>{
+  if(!selectedNode) return;
+  state.nodes = state.nodes.filter(n=>n.id!==selectedNode);
+  state.edges = state.edges.filter(e=>e.from!==selectedNode && e.to!==selectedNode);
+  selectedNode = null;
+  saveState(); render();
+});
+
+function render(){
+  canvas.querySelectorAll('.node').forEach(n=>n.remove());
+  state.nodes.forEach(n=>{
+    const el = document.createElement('div');
+    el.className = 'node'+(n.id===selectedNode?' selected':'');
+    el.dataset.kind = n.kind;
+    el.style.left = n.x+'px';
+    el.style.top = n.y+'px';
+    el.innerHTML = '<span class="kind">'+n.kind+'</span>'+n.label;
+    el.addEventListener('mousedown', (ev)=>startDrag(ev, n));
+    el.addEventListener('touchstart', (ev)=>startDrag(ev.touches[0], n, ev), {passive:false});
+    el.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      if(linkMode){
+        if(!linkFirst){ linkFirst = n.id; }
+        else if(linkFirst !== n.id){
+          state.edges.push({from:linkFirst, to:n.id});
+          linkFirst = null; linkMode = false;
+          document.getElementById('linkModeBtn').textContent = 'Ligar nós';
+          document.getElementById('linkModeBtn').classList.remove('primary');
+          saveState();
+        }
+      } else {
+        selectedNode = n.id;
+      }
+      render();
+    });
+    canvas.appendChild(el);
+  });
+  drawEdges();
+  renderCards();
+}
+
+function startDrag(ev, node, touchEv){
+  ev.preventDefault && ev.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  function move(mv){
+    const p = mv.touches ? mv.touches[0] : mv;
+    node.x = Math.max(0, Math.min(rect.width-120, p.clientX - rect.left - 55));
+    node.y = Math.max(0, Math.min(rect.height-40, p.clientY - rect.top - 15));
+    render();
+  }
+  function up(){
+    window.removeEventListener('mousemove', move);
+    window.removeEventListener('mouseup', up);
+    window.removeEventListener('touchmove', move);
+    window.removeEventListener('touchend', up);
+    saveState();
+  }
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', up);
+  window.addEventListener('touchmove', move, {passive:false});
+  window.addEventListener('touchend', up);
+}
+
+function drawEdges(){
+  edgeLayer.innerHTML = '<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#8b8a92"/></marker></defs>';
+  state.edges.forEach(e=>{
+    const a = state.nodes.find(n=>n.id===e.from);
+    const b = state.nodes.find(n=>n.id===e.to);
+    if(!a||!b) return;
+    const x1=a.x+55, y1=a.y+18, x2=b.x+55, y2=b.y+18;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+    line.setAttribute('stroke','#8b8a92'); line.setAttribute('stroke-width','1.5');
+    line.setAttribute('marker-end','url(#arrow)');
+    edgeLayer.appendChild(line);
+  });
+}
+
+// ---------- cards ----------
+const cardForm = document.getElementById('cardForm');
+document.getElementById('newCardBtn').addEventListener('click', ()=>{
+  editingCardId = null;
+  document.getElementById('cf-title').value='';
+  document.getElementById('cf-kind').value='ACTION';
+  document.getElementById('cf-given').value='';
+  document.getElementById('cf-when').value='';
+  document.getElementById('cf-then').value='';
+  cardForm.classList.add('open');
+});
+document.getElementById('cancelCardBtn').addEventListener('click', ()=>cardForm.classList.remove('open'));
+
+document.getElementById('saveCardBtn').addEventListener('click', ()=>{
+  const title = document.getElementById('cf-title').value.trim();
+  const kind = document.getElementById('cf-kind').value;
+  const given = document.getElementById('cf-given').value.trim();
+  const when = document.getElementById('cf-when').value.trim();
+  const then = document.getElementById('cf-then').value.trim();
+  if(!title || !given || !when || !then){ alert('Preenche título, Dado, Quando e Então.'); return; }
+  if(editingCardId){
+    const c = state.cards.find(c=>c.id===editingCardId);
+    Object.assign(c, {title, kind, given, when, then});
+  } else {
+    state.cards.push({id:'c'+(cardSeq++), title, kind, given, when, then});
+  }
+  cardForm.classList.remove('open');
+  saveState(); render();
+});
+
+function renderCards(){
+  const grid = document.getElementById('cardGrid');
+  const empty = document.getElementById('cardsEmpty');
+  grid.innerHTML = '';
+  empty.style.display = state.cards.length ? 'none' : 'block';
+  const colors = {DATA:'var(--data)', FLOW:'var(--flow)', ACTION:'var(--action)', SCORE:'var(--score)'};
+  state.cards.forEach(c=>{
+    const el = document.createElement('div');
+    el.className = 'rule-card';
+    el.innerHTML = `
+      <span class="tag" style="background:${colors[c.kind]}">${c.kind}</span>
+      <p class="title">${escapeHtml(c.title)}</p>
+      <div class="gherkin">
+        <div><b>Dado</b> ${escapeHtml(c.given)}</div>
+        <div><b>Quando</b> ${escapeHtml(c.when)}</div>
+        <div><b>Então</b> ${escapeHtml(c.then)}</div>
+      </div>
+      <div class="card-actions">
+        <button data-act="edit">Editar</button>
+        <button data-act="del">Apagar</button>
+      </div>`;
+    el.querySelector('[data-act="edit"]').addEventListener('click', ()=>{
+      editingCardId = c.id;
+      document.getElementById('cf-title').value = c.title;
+      document.getElementById('cf-kind').value = c.kind;
+      document.getElementById('cf-given').value = c.given;
+      document.getElementById('cf-when').value = c.when;
+      document.getElementById('cf-then').value = c.then;
+      cardForm.classList.add('open');
+    });
+    el.querySelector('[data-act="del"]').addEventListener('click', ()=>{
+      state.cards = state.cards.filter(x=>x.id!==c.id);
+      saveState(); render();
+    });
+    grid.appendChild(el);
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ---------- generate & review ----------
+function renderSummary(){
+  const s = document.getElementById('genSummary');
+  s.innerHTML = `<b>${escapeHtml(document.getElementById('gameName').value || 'Jogo Dummy')}</b> —
+    ${state.nodes.length} nós de fluxo, ${state.edges.length} ligações, ${state.cards.length} cartões de lógica.
+    ${state.cards.length===0 ? ' Cria pelo menos um cartão antes de gerar.' : ''}`;
+}
+
+function buildPrompt(){
+  const gameName = document.getElementById('gameName').value || 'Jogo Dummy';
+  const nodesTxt = state.nodes.map(n=>`- [${n.kind}] ${n.label} (id:${n.id})`).join('\n') || '(sem nós definidos)';
+  const edgesTxt = state.edges.map(e=>`- ${e.from} -> ${e.to}`).join('\n') || '(sem ligações)';
+  const cardsTxt = state.cards.map(c=>
+`Cartão "${c.title}" [${c.kind}]
+  Dado ${c.given}
+  Quando ${c.when}
+  Então ${c.then}`).join('\n\n') || '(sem cartões)';
+
+  return `Vais gerar um PWA dummy de tabuleiro, de ficheiro único (HTML+CSS+JS inline, sem dependências externas), que implementa APENAS as regras descritas abaixo, seguindo o taxonomy de nós BGE (DATA / FLOW / ACTION / SCORE) do motor Bitnik Studio.
+
+Jogo: ${gameName}
+
+Fluxo (nós):
+${nodesTxt}
+
+Ligações do fluxo:
+${edgesTxt}
+
+Cartões de lógica (Gherkin -> regra executável):
+${cardsTxt}
+
+Requisitos:
+- Um único ficheiro HTML válido, autocontido, sem frameworks.
+- Comenta o código indicando a que nó/cartão cada bloco de lógica corresponde (ex: // ACTION c3: jogar carta Charm).
+- Interface mínima mas jogável (tabuleiro/estado visível, botões para as ações descritas nos cartões).
+- Este é um protótipo "dummy" para validar as regras, não precisa de arte nem de rede.
+- Responde APENAS com o código HTML, sem explicações antes ou depois, sem blocos de markdown.`;
+}
+
+document.getElementById('generateBtn').addEventListener('click', async ()=>{
+  if(state.cards.length === 0){ alert('Cria pelo menos um cartão de lógica primeiro.'); return; }
+  const statusEl = document.getElementById('genStatus');
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  statusEl.textContent = 'A gerar com o LLM…';
+  document.getElementById('reviewedCheck').checked = false;
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: buildPrompt() }]
+      })
+    });
+    const data = await response.json();
+    let text = (data.content || []).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+    text = text.replace(/^```html\s*/i,'').replace(/```\s*$/,'').trim();
+    document.getElementById('codeOut').value = text || '// O LLM não devolveu código. Tenta novamente.';
+    statusEl.textContent = 'Gerado — revê o código antes de fazer commit.';
+  }catch(err){
+    console.error(err);
+    statusEl.textContent = 'Erro ao gerar. Tenta novamente.';
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const code = document.getElementById('codeOut').value;
+  if(!code.trim()){ alert('Não há código para descarregar ainda.'); return; }
+  const blob = new Blob([code], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const name = (document.getElementById('gameName').value || 'jogo-dummy').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  a.href = url; a.download = name+'.html';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('commitBtn').addEventListener('click', async ()=>{
+  const code = document.getElementById('codeOut').value;
+  if(!code.trim()){ alert('Gera código antes de fazer commit.'); return; }
+  if(!document.getElementById('reviewedCheck').checked){ alert('Confirma que revistes o código antes do commit.'); return; }
+  const commit = {
+    id: 'v'+(state.commits.length+1),
+    ts: new Date().toISOString(),
+    gameName: document.getElementById('gameName').value,
+    cardCount: state.cards.length,
+    nodeCount: state.nodes.length,
+    code
+  };
+  state.commits.unshift(commit);
+  await saveState();
+  renderCommits();
+  document.getElementById('genStatus').textContent = 'Commit '+commit.id+' guardado.';
+});
+
+function renderCommits(){
+  const list = document.getElementById('commitList');
+  list.innerHTML = '';
+  if(state.commits.length===0){ list.innerHTML = '<div class="empty-state">Sem commits ainda.</div>'; return; }
+  state.commits.forEach(c=>{
+    const row = document.createElement('div');
+    row.className = 'commit-item';
+    const d = new Date(c.ts);
+    row.innerHTML = `<span><span class="id">${c.id}</span> — ${escapeHtml(c.gameName)} · ${c.cardCount} cartões, ${c.nodeCount} nós</span><span>${d.toLocaleString('pt-PT')}</span>`;
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('gameName').addEventListener('change', saveState);
+
+document.getElementById('loadProjectBtn').addEventListener('click', ()=>{
+  const slug = document.getElementById('projectSelect').value;
+  if(!slug){ document.getElementById('projectStatus').textContent = 'Escolhe um projeto guardado.'; return; }
+  loadProject(slug);
+});
+document.getElementById('saveAsBtn').addEventListener('click', saveProjectAs);
+document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
+document.getElementById('deleteProjectBtn').addEventListener('click', deleteProject);
+document.getElementById('loadCapivarasBtn').addEventListener('click', loadCapivarasExample);
+
+// ---------- Capivaras example ----------
+async function loadCapivarasExample(){
+  const name = 'Capivaras (exemplo)';
+  const slug = 'capivaras-exemplo';
+  const nodes = [
+    {id:'n1', kind:'FLOW',   label:'Início de ronda',              x: 20,  y: 30},
+    {id:'n2', kind:'DATA',   label:'Apostas secretas por jogador', x: 220, y: 30},
+    {id:'n3', kind:'ACTION', label:'Jogador aposta em segredo',    x: 20,  y: 130},
+    {id:'n4', kind:'ACTION', label:'Reforço com token de ave',     x: 220, y: 130},
+    {id:'n5', kind:'FLOW',   label:'Revelação simultânea',         x: 120, y: 230},
+    {id:'n6', kind:'SCORE',  label:'Atribuir carta Capivara',      x: 20,  y: 330},
+    {id:'n7', kind:'SCORE',  label:'Bónus vitória-régia',          x: 220, y: 330}
+  ];
+  const edges = [
+    {from:'n1', to:'n2'}, {from:'n2', to:'n3'}, {from:'n2', to:'n4'},
+    {from:'n3', to:'n5'}, {from:'n4', to:'n5'}, {from:'n5', to:'n6'}, {from:'n6', to:'n7'}
+  ];
+  const cards = [
+    {id:'c1', kind:'ACTION', title:'Aposta secreta válida',
+      given:'que é a ronda de apostas e o jogador ainda não apostou nesta ronda',
+      when:'o jogador escolhe um valor de aposta dentro dos tokens que tem disponíveis',
+      then:'a aposta fica oculta dos outros jogadores até à revelação simultânea'},
+    {id:'c2', kind:'ACTION', title:'Reforço com token de ave',
+      given:'que o jogador tem pelo menos um token de ave disponível',
+      when:'o jogador decide usar um token de ave para reforçar a aposta',
+      then:'a aposta desse jogador aumenta em 1 sem gastar tokens de aposta normais'},
+    {id:'c3', kind:'ACTION', title:'Jogador desconectado aposta automaticamente',
+      given:'que um jogador está desconectado durante a ronda de apostas',
+      when:'o temporizador da ronda expira',
+      then:'o sistema submete automaticamente a aposta mínima em nome desse jogador'},
+    {id:'c4', kind:'FLOW', title:'Revelação simultânea',
+      given:'que todos os jogadores ativos já apostaram nesta ronda',
+      when:'a ronda avança para a fase de revelação',
+      then:'todas as apostas são reveladas ao mesmo tempo e comparadas, sem vantagem de ordem'},
+    {id:'c5', kind:'SCORE', title:'Vencedor da ronda recebe carta Capivara',
+      given:'que as apostas foram reveladas',
+      when:'um jogador tem a aposta mais alta sem ultrapassar o limite da ronda',
+      then:'esse jogador recebe a carta Capivara da ronda e os pontos correspondentes'},
+    {id:'c6', kind:'SCORE', title:'Bónus de vitória-régia',
+      given:'que um jogador venceu 2 rondas consecutivas',
+      when:'a segunda vitória consecutiva é confirmada',
+      then:'o jogador recebe o bónus de vitória-régia (+2 pontos)'}
+  ];
+  state = {gameName: name, nodes, edges, cards, commits: []};
+  currentSlug = slug;
+  nodeSeq = 8; cardSeq = 7;
+  document.getElementById('gameName').value = name;
+  await storageAdapter.set(projectKey(slug), JSON.stringify(state), false);
+  await bumpIndex(slug, name);
+  await storageAdapter.set(CURRENT_KEY, slug, false);
+  await refreshProjectSelect();
+  render(); renderCommits(); renderSummary();
+  document.getElementById('projectStatus').textContent = 'Exemplo Capivaras carregado — regras simplificadas para ilustrar o fluxo, não é a versão de produção.';
+}
+
+// ---------- init ----------
+loadState().then(()=>{ renderSummary(); renderCommits(); });
+</script>
+</body>
+</html>
