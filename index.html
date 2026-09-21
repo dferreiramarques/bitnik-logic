@@ -735,27 +735,27 @@ async function loadCapivarasExample(){
   const name = 'Capivaras (exemplo)';
   const slug = 'capivaras-exemplo';
   const nodes = [
-    {id:'n1', kind:'FLOW',   label:'Início de ronda',              x: 20,  y: 30},
-    {id:'n2', kind:'DATA',   label:'Apostas secretas por jogador', x: 220, y: 30},
-    {id:'n3', kind:'ACTION', label:'Jogador aposta em segredo',    x: 20,  y: 130},
-    {id:'n4', kind:'ACTION', label:'Reforço com token de ave',     x: 220, y: 130},
-    {id:'n5', kind:'FLOW',   label:'Revelação simultânea',         x: 120, y: 230},
-    {id:'n6', kind:'SCORE',  label:'Atribuir carta Capivara',      x: 20,  y: 330},
-    {id:'n7', kind:'SCORE',  label:'Bónus vitória-régia',          x: 220, y: 330}
+    {id:'n1', kind:'FLOW',   label:'Início de ronda',                    x: 20,  y: 30},
+    {id:'n2', kind:'DATA',   label:'Apostas secretas por jogador',       x: 220, y: 30},
+    {id:'n3', kind:'ACTION', label:'Jogador aposta em segredo',          x: 20,  y: 130},
+    {id:'n4', kind:'SCORE',  label:'Jogador recebe token de ave',        x: 365, y: 230},
+    {id:'n5', kind:'FLOW',   label:'Revelação simultânea',               x: 60,  y: 200},
+    {id:'n6', kind:'SCORE',  label:'Atribuir carta Capivara',            x: 20,  y: 330},
+    {id:'n7', kind:'SCORE',  label:'Token de bónus (highscore de aves)', x: 365, y: 325}
   ];
   const edges = [
-    {from:'n1', to:'n2'}, {from:'n2', to:'n3'}, {from:'n2', to:'n4'},
-    {from:'n3', to:'n5'}, {from:'n4', to:'n5'}, {from:'n5', to:'n6'}, {from:'n6', to:'n7'}
+    {from:'n1', to:'n2'}, {from:'n2', to:'n3'}, {from:'n3', to:'n5'},
+    {from:'n5', to:'n6'}, {from:'n6', to:'n4'}, {from:'n6', to:'n7'}
   ];
   const cards = [
     {id:'c1', kind:'ACTION', title:'Aposta secreta válida',
       given:'que é a ronda de apostas e o jogador ainda não apostou nesta ronda',
       when:'o jogador escolhe um valor de aposta dentro dos tokens que tem disponíveis',
       then:'a aposta fica oculta dos outros jogadores até à revelação simultânea'},
-    {id:'c2', kind:'ACTION', title:'Reforço com token de ave',
-      given:'que o jogador tem pelo menos um token de ave disponível',
-      when:'o jogador decide usar um token de ave para reforçar a aposta',
-      then:'a aposta desse jogador aumenta em 1 sem gastar tokens de aposta normais'},
+    {id:'c2', kind:'SCORE', title:'Token de ave só após a pontuação',
+      given:'que a carta Capivara da ronda já foi pontuada',
+      when:'a verificação de pontuação da ronda termina',
+      then:'o jogador recebe o token de ave — nunca antes da pontuação da carta'},
     {id:'c3', kind:'ACTION', title:'Jogador desconectado aposta automaticamente',
       given:'que um jogador está desconectado durante a ronda de apostas',
       when:'o temporizador da ronda expira',
@@ -768,10 +768,10 @@ async function loadCapivarasExample(){
       given:'que as apostas foram reveladas',
       when:'um jogador tem a aposta mais alta sem ultrapassar o limite da ronda',
       then:'esse jogador recebe a carta Capivara da ronda e os pontos correspondentes'},
-    {id:'c6', kind:'SCORE', title:'Bónus de vitória-régia',
-      given:'que um jogador venceu 2 rondas consecutivas',
-      when:'a segunda vitória consecutiva é confirmada',
-      then:'o jogador recebe o bónus de vitória-régia (+2 pontos)'}
+    {id:'c6', kind:'SCORE', title:'Token de bónus por highscore de aves',
+      given:'que a pontuação da carta Capivara está a ser verificada',
+      when:'os pontos de ave de um jogador superam o highscore de pontos de ave',
+      then:'esse jogador fica com o token de bónus'}
   ];
   state = {gameName: name, nodes, edges, cards, commits: []};
   currentSlug = slug;
