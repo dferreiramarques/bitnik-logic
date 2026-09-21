@@ -404,8 +404,11 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab === 'gen') renderSummary();
+    if(btn.dataset.tab === 'flow') drawEdges();
   });
 });
+
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>drawEdges());
 
 // ---------- flow canvas ----------
 const canvas = document.getElementById('canvas');
@@ -454,6 +457,7 @@ function render(){
     const el = document.createElement('div');
     el.className = 'node'+(n.id===selectedNode?' selected':'');
     el.dataset.kind = n.kind;
+    el.dataset.id = n.id;
     el.style.left = n.x+'px';
     el.style.top = n.y+'px';
     el.innerHTML = '<span class="kind">'+n.kind+'</span>'+n.label;
@@ -506,13 +510,34 @@ function startDrag(ev, node, touchEv){
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+function nodeBox(id){
+  const el = canvas.querySelector('.node[data-id="'+id+'"]');
+  if(!el) return null;
+  return {cx: el.offsetLeft + el.offsetWidth/2, cy: el.offsetTop + el.offsetHeight/2, hw: el.offsetWidth/2, hh: el.offsetHeight/2};
+}
+
+// point where the line from `from`'s center towards `to`'s center leaves `from`'s rectangle
+function borderPoint(from, to){
+  const dx = to.cx - from.cx, dy = to.cy - from.cy;
+  if(!dx && !dy) return {x: from.cx, y: from.cy};
+  const t = Math.min(dx ? from.hw/Math.abs(dx) : Infinity, dy ? from.hh/Math.abs(dy) : Infinity);
+  return {x: from.cx + dx*t, y: from.cy + dy*t};
+}
+
 function drawEdges(){
-  edgeLayer.innerHTML = '<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#8b8a92"/></marker></defs>';
+  edgeLayer.innerHTML =
+    '<defs>' +
+    '<marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#8b8a92"/></marker>' +
+    '<marker id="arrow-sel" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#e9e7dd"/></marker>' +
+    '</defs>';
   state.edges.forEach(e=>{
-    const a = state.nodes.find(n=>n.id===e.from);
-    const b = state.nodes.find(n=>n.id===e.to);
+    const a = nodeBox(e.from);
+    const b = nodeBox(e.to);
     if(!a||!b) return;
-    const x1=a.x+55, y1=a.y+18, x2=b.x+55, y2=b.y+18;
+    const overlap = Math.abs(b.cx-a.cx) < a.hw+b.hw && Math.abs(b.cy-a.cy) < a.hh+b.hh;
+    const p1 = overlap ? {x:a.cx, y:a.cy} : borderPoint(a, b);
+    const p2 = overlap ? {x:b.cx, y:b.cy} : borderPoint(b, a);
+    const x1=p1.x, y1=p1.y, x2=p2.x, y2=p2.y;
     const isSelected = selectedEdge && selectedEdge.from===e.from && selectedEdge.to===e.to;
 
     // wider transparent line under the visible one, so clicking near a thin edge still hits it
@@ -536,7 +561,7 @@ function drawEdges(){
     line.setAttribute('x2',x2); line.setAttribute('y2',y2);
     line.style.stroke = isSelected ? 'var(--ink)' : '#8b8a92';
     line.style.strokeWidth = isSelected ? '3' : '1.5';
-    line.setAttribute('marker-end','url(#arrow)');
+    line.setAttribute('marker-end', isSelected ? 'url(#arrow-sel)' : 'url(#arrow)');
     line.style.pointerEvents = 'none';
     edgeLayer.appendChild(line);
   });
@@ -795,14 +820,14 @@ async function loadTicTacToeExample(){
   const slug = 'tic-tac-toe-exemplo';
   const nodes = [
     {id:'n1', kind:'FLOW',   label:'Início de jogo',               x: 20,  y: 30},
-    {id:'n2', kind:'DATA',   label:'Tabuleiro 3x3 (9 casas)',      x: 240, y: 30},
-    {id:'n3', kind:'DATA',   label:'Jogador atual (X ou O)',       x: 480, y: 30},
-    {id:'n4', kind:'FLOW',   label:'Turno do jogador',             x: 20,  y: 140},
-    {id:'n5', kind:'ACTION', label:'Jogador marca uma casa livre', x: 240, y: 140},
-    {id:'n6', kind:'SCORE',  label:'Verificar 3 em linha',         x: 240, y: 250},
-    {id:'n7', kind:'SCORE',  label:'Verificar empate',             x: 480, y: 250},
-    {id:'n8', kind:'FLOW',   label:'Fim de jogo',                  x: 480, y: 350},
-    {id:'n9', kind:'FLOW',   label:'Passar a vez ao outro jogador', x: 20, y: 350}
+    {id:'n2', kind:'DATA',   label:'Tabuleiro 3x3 (9 casas)',      x: 280, y: 30},
+    {id:'n3', kind:'DATA',   label:'Jogador atual (X ou O)',       x: 20,  y: 130},
+    {id:'n4', kind:'FLOW',   label:'Turno do jogador',             x: 20,  y: 240},
+    {id:'n5', kind:'ACTION', label:'Jogador marca uma casa livre', x: 280, y: 140},
+    {id:'n6', kind:'SCORE',  label:'Verificar 3 em linha',         x: 280, y: 250},
+    {id:'n7', kind:'SCORE',  label:'Verificar empate',             x: 520, y: 250},
+    {id:'n8', kind:'FLOW',   label:'Fim de jogo',                  x: 520, y: 360},
+    {id:'n9', kind:'FLOW',   label:'Passar a vez ao outro jogador', x: 20, y: 360}
   ];
   const edges = [
     {from:'n1', to:'n2'}, {from:'n1', to:'n3'}, {from:'n3', to:'n4'}, {from:'n2', to:'n5'},
