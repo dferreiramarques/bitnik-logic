@@ -97,6 +97,7 @@ Editor de nós com pan, zoom e minimapa. As boas práticas implementadas e a com
 - **Editar:** duplo clique ou `F2` renomeia; com um bloco selecionado, o **painel do bloco** (à direita do canvas) permite mudar o nome e o tipo, ver os cartões Gherkin desse bloco (e criar mais) e escrever o texto que ele ocupa no documento de regras. Clicar numa ligação seleciona-a; "Apagar ligação" (ou `Del`) remove-a sem afetar os nós.
 - **Navegar:** arrastar o fundo move a vista, `Ctrl` + roda faz zoom, os botões `−`/`+`/`⤢` ajustam o zoom e a vista, e o minimapa permite saltar para outra zona.
 - **Selecionar:** `Shift` + clique ou `Shift` + arrastar (caixa); `Ctrl+A` seleciona tudo. As ligações dos nós selecionados ficam realçadas.
+- **Etiquetas e avisos:** cada bloco mostra quantos cartões tem (▤) e se tem texto nas regras (¶), a tracejado quando falta, e um ⚠ quando há cartões com o tipo ou o âmbito por acertar. O painel do bloco explica cada aviso e propõe a correção (igualar o tipo do cartão ao do bloco, passar um cartão de Componente a Bloco, escrever o texto, criar um cartão).
 - **Organizar:** o botão "Organizar" coloca os nós numa grelha sem ligações por trás de outros nós, com o fluxo de cima para baixo.
 - **Anular / refazer:** `Ctrl+Z` / `Ctrl+Y` (100 passos, só para o fluxo). A grelha (12 px) pode ser desligada em "Grelha".
 - **Teclado:** `Tab` navega entre nós, `Enter` seleciona (ou liga, no modo ligar), setas movem a seleção, `Del` apaga, `Esc` cancela. A lista completa está em "Atalhos e gestos", por baixo do canvas.
@@ -105,7 +106,7 @@ Editor de nós com pan, zoom e minimapa. As boas práticas implementadas e a com
 Cartões estilo ficha, cada um com título, tag de `kind` e o triplo Gherkin (Dado/Quando/Então). Suporta criar, editar e apagar.
 
 - **Âmbito:** geral, jogador, componente (nó DATA) ou bloco do fluxo. Os cartões aparecem agrupados por âmbito; os de componente e de bloco seguem a ordem do fluxo. Há filtros por âmbito e por bloco.
-- **Cobertura:** por cima dos cartões, a app diz se todos os blocos têm pelo menos um cartão e, se não, lista os que faltam; clicar num deles abre o formulário já preenchido para esse bloco. Cartões cujo bloco foi apagado ficam marcados "bloco em falta".
+- **Cobertura:** por cima dos cartões, a app diz se todos os blocos têm pelo menos um cartão e, se não, lista os que faltam; clicar num deles abre o formulário já preenchido para esse bloco. Cartões cujo bloco foi apagado ficam marcados "bloco em falta", e os cartões com tipo diferente do bloco ou de Componente num bloco que já não é DATA também são assinalados.
 - **Formulário:** escolher um bloco preenche o tipo do cartão com o do bloco. Um cartão de bloco ou de componente tem de ter bloco.
 
 ### 3 · Regras
@@ -120,6 +121,7 @@ O documento de regras: texto escrito por pessoas, para pessoas.
 - Resume o estado atual (nº de nós, ligações, cartões).
 - "Copiar prompt para o teu AI" monta um prompt estruturado (`buildPrompt()`: papel, objetivo, taxonomia BGE, fluxo, texto das regras, cartões agrupados por âmbito e por bloco, requisitos e formato de saída) e copia-o para a área de transferência. Cola-o num AI à tua escolha (OpenCode, ChatGPT, Gemini, Claude…), que deve devolver um ficheiro HTML; cola o código na caixa abaixo (o markdown e o texto à volta são removidos automaticamente).
 - "Gerar com API (só no Claude.ai)" faz o pedido diretamente à API da Anthropic; só funciona dentro do preview de artifacts do Claude.ai.
+- **Design system:** todos os prompts pedem que o protótipo use o design system da bitnikgames ([repositório e documentação](https://github.com/dferreiramarques/bitnikgames-design-system)). O prompt leva o CSS do sistema (tokens, base, componentes e a camada de jogo `game-ui.css`, sem comentários, cerca de 10 mil caracteres) e diz ao AI para o colar num `<style>`, usar as classes `.btn`, `.badge`, `.chip`, `.game-card`, `.modal-*`, `.tabs` e `.toast`, e não inventar cores, raios, sombras nem fontes. O único recurso externo permitido no protótipo é o link das Google Fonts (Baloo 2 e Inter). O texto vive em `buildPrompt()` e a cópia do CSS em `DESIGN_SYSTEM_CSS`, dentro de `index.html`.
 - O código é editável na textarea antes de aceitar.
 - "Commit às regras" só fica disponível depois de marcar a checkbox "Revi o código gerado" — grava uma entrada no histórico de commits do projeto atual. Cada entrada tem **Ver código** (coloca-o na caixa, sem alterar o commit) e **Descarregar**.
 - "Descarregar .html" exporta o código da textarea como ficheiro standalone.
@@ -153,7 +155,7 @@ Onde `REGRAS.md` e o código divergem, o ficheiro segue o código — ver o cart
 
 ## Stack
 
-Vanilla JS, HTML, CSS — sem frameworks, sem dependências externas (à exceção de fontes do Google Fonts), seguindo os princípios de ficheiro único usados no resto do Bitnik Studio.
+Vanilla JS, HTML, CSS — sem frameworks, sem dependências externas (à exceção de fontes do Google Fonts). O aspeto dos protótipos gerados segue o [design system da bitnikgames](https://github.com/dferreiramarques/bitnikgames-design-system), seguindo os princípios de ficheiro único usados no resto do Bitnik Studio.
 
 ## Limitações conhecidas
 

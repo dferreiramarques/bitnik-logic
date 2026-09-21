@@ -186,13 +186,26 @@ Mostra o que estiver selecionado:
 
 Num bloco **DATA**, **+ Cartão neste bloco** propõe o âmbito *Componente*; nos outros, *Bloco*.
 
+**Etiquetas nos blocos.** No canto de cada bloco do canvas aparecem duas etiquetas pequenas: **▤ N** (quantos cartões Gherkin tem) e **¶** (se tem texto nas regras). A tracejado, significa que falta. Um **⚠** vermelho diz que há cartões do bloco com o tipo ou o âmbito por acertar. Assim, o fluxo mostra de relance o que já está escrito nos cartões e nas regras.
+
+**Verificações no painel.** Por baixo do nome do bloco, o painel avisa, com um botão de correção quando faz sentido:
+
+| Aviso | Botão |
+|---|---|
+| O cartão «X» é ACTION mas o bloco é SCORE (o tipo do cartão difere do do bloco) | **Igualar ao bloco** |
+| O cartão «X» é de Componente, mas o bloco já não é DATA | **Passar a Bloco** |
+| Há cartões mas ainda não escreveste o texto nas regras deste bloco | **Escrever texto** |
+| Há texto nas regras mas nenhum cartão Gherkin neste bloco | **+ Cartão** |
+
+Os avisos são só avisos: podes ignorá-los (por exemplo, um bloco ACTION com um cartão de tipo SCORE pode ser de propósito).
+
 ### 4.3 Separador 2 · Cartões de Lógica
 
 - **+ Cartão** abre o formulário: **Título**, **Tipo**, **Âmbito**, o bloco (se o âmbito o pedir), **Dado que…**, **Quando…**, **Então…**. O título e as três frases são obrigatórios (o tipo vem sempre preenchido).
 - **Âmbito:** *Geral*, *Jogador*, *Componente* (lista só os blocos DATA) ou *Bloco* (lista todos, pela ordem do fluxo). Nos dois últimos é obrigatório escolher o bloco; ao escolhê-lo, o tipo do cartão passa a ser o do bloco (podes mudá-lo).
 - **Filtros:** *Todos / Gerais / Jogador / Componentes / Por bloco* (com o número de cartões) e um seletor **Todos os blocos**. Se tens um filtro ativo, **+ Cartão** já abre com esse âmbito ou bloco.
 - **Agrupamento:** os cartões aparecem em quatro grupos: *Regras gerais*, *Restrições do jogador*, *Componentes* e *Por bloco do fluxo*. Nos dois últimos, seguem a ordem do fluxo.
-- **Cobertura:** a linha por cima diz se todos os blocos têm cartões. Se não, lista os que faltam; clicar num abre o formulário para esse bloco. Um aviso mostra os cartões cujo bloco já não existe (marcados "⚠ bloco em falta").
+- **Cobertura:** a linha por cima diz se todos os blocos têm cartões. Se não, lista os que faltam; clicar num abre o formulário para esse bloco. Um aviso mostra os cartões cujo bloco já não existe (marcados "⚠ bloco em falta"), os que têm um tipo diferente do do bloco ("⚠ tipo ≠ bloco") e os de Componente cujo bloco já não é DATA.
 - Cada cartão tem **Editar**, **Ver no fluxo** (seleciona o bloco) e **Apagar**. Apagar não tem anular. **Guardar cartão** grava; **Cancelar** fecha sem gravar.
 
 ### 4.4 Separador 3 · Regras
@@ -203,6 +216,7 @@ O documento de regras, feito de secções.
 |---|---|
 | **+ Secção geral** | Cria uma secção com título livre (Objetivo, Preparação, Dicas…). Entra no topo, depois das outras gerais que já estejam no topo. |
 | Linha de progresso | "N de M blocos têm texto nas regras." |
+| Têm cartões mas ainda não têm texto | Lista os blocos que já têm cartões Gherkin mas não têm texto nas regras. Clicar num cria a secção e põe o cursor nela. |
 | Blocos sem secção | Lista, em botões, os blocos que ainda não têm secção. Clicar num cria-a e põe o cursor nela; **Criar todas (N)** cria uma secção vazia para cada um, pela ordem do fluxo. |
 | Cada secção | O **título** (o nome do bloco, ou um campo editável nas gerais), a **caixa de texto**, **↑ ↓** (mudar a ordem), **Ir ao bloco**, **Apagar**, e em baixo o número de palavras e quantos cartões Gherkin o bloco tem (clicar mostra-os no separador Cartões). |
 | Secção "bloco apagado" | Aparece a vermelho quando o bloco foi apagado. O texto não se perde: **Tornar geral** mantém-no como secção geral; se anulares o apagamento do bloco, volta a ligar-se. |
@@ -222,7 +236,7 @@ Se esvaziares por completo o texto de um bloco no painel do bloco, a sua secçã
 
 | Elemento | O que faz |
 |---|---|
-| Resumo | Quantos blocos, ligações, cartões e secções de regras com texto tem o projeto, e avisa se há blocos sem cartões. |
+| Resumo | Quantos blocos, ligações, cartões e secções de regras com texto tem o projeto, e avisa se há blocos sem cartões, blocos com cartões mas sem texto nas regras, cartões com o tipo diferente do bloco ou de Componente num bloco que já não é DATA. |
 | **Copiar prompt para o teu AI** | Junta o fluxo, o texto das regras e os cartões num prompt e copia-o. Precisa de pelo menos um cartão. |
 | **Ver prompt** | Mostra o prompt (também serve para o copiar à mão, se o botão não conseguir). |
 | **Gerar com API (só no Claude.ai)** | Pede diretamente à API da Anthropic. Só funciona dentro do preview de artifacts do Claude.ai. |
@@ -323,7 +337,9 @@ O texto não é uma cópia do cartão. Escreve-o para alguém que nunca viu o jo
 
 O Rule Forge não gera o protótipo sozinho: ajuda-te a pedi-lo bem a um AI à tua escolha (OpenCode, ChatGPT, Gemini, Claude…).
 
-**O que o prompt contém.** Um papel, o objetivo, as definições dos quatro tipos BGE, o nome do jogo, os blocos e as ligações (com nomes, não só ids), o **texto das regras** (como apoio para perceber a intenção), os **cartões agrupados por âmbito** (gerais, jogador, componentes e por bloco, cada um com o bloco a que pertence), os requisitos técnicos e o formato de saída. Vê-lo em **Ver prompt**. Se o texto das regras contradisser um cartão, o prompt diz ao AI que os cartões mandam.
+**O que o prompt contém.** Um papel, o objetivo, as definições dos quatro tipos BGE, o nome do jogo, os blocos e as ligações (com nomes, não só ids), o **texto das regras** (como apoio para perceber a intenção), os **cartões agrupados por âmbito** (gerais, jogador, componentes e por bloco, cada um com o bloco a que pertence), o **design system da bitnikgames**, os requisitos técnicos e o formato de saída. Vê-lo em **Ver prompt**.
+
+**Design system.** O prompt pede que o protótipo use o [design system da bitnikgames](https://github.com/dferreiramarques/bitnikgames-design-system) (a documentação, com os tokens e os componentes, está no README desse repositório). Como um AI nem sempre consegue abrir links, e as pré-visualizações de chat costumam bloquear CSS externo, o prompt leva o próprio CSS do sistema (cerca de 10 mil caracteres) e diz ao AI para o colar num `<style>` e usar as suas classes: botões `.btn`, etiquetas `.badge`, e, para o jogo, `.chip` (uma cor por jogador), `.game-card`, `.badge-circle`, `.modal-overlay`/`.modal-box`, `.tabs` e `.toast`. O único recurso externo é o link das fontes Google (Baloo 2 e Inter); sem rede, o navegador usa a fonte do sistema. Se o texto das regras contradisser um cartão, o prompt diz ao AI que os cartões mandam.
 
 **Como usar**
 
@@ -392,10 +408,12 @@ Regras:
 | **O botão "Copiar prompt" não copia** | Alguns browsers bloqueiam a cópia automática. A caixa **Ver prompt** abre; seleciona e copia à mão. |
 | **O AI devolveu texto à volta do código** | Cola na mesma: o texto antes de `<!DOCTYPE` e depois de `</html>` e o markdown são removidos. |
 | **O código veio cortado a meio** | Pede ao AI "continua", ou usa um modelo com respostas mais longas. Projetos com muitos cartões e texto geram prompts e respostas longos. |
+| **O protótipo não tem o aspeto da bitnikgames** | Confirma no código que o CSS do prompt foi colado num `<style>` no `<head>` e que os botões, cartas e etiquetas usam classes como `.btn`, `.game-card` e `.badge`. Se não, diz ao AI: "usa o design system do prompt, sem inventar cores nem fontes". O prompt fica longo (o CSS tem cerca de 10 mil caracteres): se o AI o cortar, usa um modelo com mais contexto. |
 | **O protótipo não cumpre uma regra** | Torna o cartão mais concreto (números, estados) e gera de novo. Procura os `// ASSUNÇÃO`. |
 | **O protótipo tem regras que eu não escrevi** | O AI preencheu lacunas. Adiciona cartões que as definam, ou que as proíbam. |
 | **Um bloco aparece como "sem cartões"** | A regra desse bloco não está escrita. Clica no bloco na linha de cobertura dos Cartões e cria o cartão. |
 | **Apaguei um bloco: e os cartões e o texto?** | Não se perdem: os cartões ficam "⚠ bloco em falta" e a secção fica "bloco apagado". Se anulares (`Ctrl`+`Z`) voltam a ligar-se. Também os podes ligar a outro bloco (editando o cartão) ou tornar a secção geral. |
+| **Vejo ⚠ num bloco ou num cartão** | É um aviso de coerência: o tipo do cartão difere do do bloco, um cartão de Componente está num bloco que já não é DATA, ou falta o texto ou os cartões. Abre o bloco: o painel diz o que é e propõe a correção. |
 | **Não consigo guardar um cartão** | Um cartão de âmbito Bloco ou Componente precisa de um bloco escolhido; o Componente só aceita blocos DATA. |
 | **A secção de um bloco desapareceu do documento** | Se esvaziaste o texto no painel do bloco, a secção vazia é removida. Volta a criá-la nos botões "Blocos sem secção" ou escrevendo de novo no painel. |
 | **O documento exportado não tem uma secção** | As secções sem texto ficam de fora. A app diz quantas. |
@@ -440,4 +458,5 @@ Mais detalhes técnicos e a comparação com outras ferramentas: [BENCHMARK.md](
 | **Protótipo (dummy)** | Um jogo mínimo, sem arte, feito só para validar as regras. |
 | **Commit** | Uma versão do protótipo que revistaste e aceitaste, guardada no projeto. |
 | **Artifact** | Um ficheiro (aqui, HTML) que alguns AIs criam ao lado da conversa, em vez de o escreverem como texto. |
+| **Design system** | O conjunto de tokens e componentes CSS da bitnikgames ([repositório](https://github.com/dferreiramarques/bitnikgames-design-system)) que os protótipos gerados usam. |
 | **Snap / grelha** | Alinhar os blocos, ao arrastar, a uma grelha invisível. |

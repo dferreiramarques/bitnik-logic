@@ -74,6 +74,12 @@
   .node.drop-ok{outline:3px solid #7be0b5;outline-offset:2px;}
   .node.drop-bad{outline:3px solid var(--danger);outline-offset:2px;}
   .node .label{display:block;}
+  .node .badges{position:absolute;top:3px;right:5px;display:flex;gap:3px;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;font-weight:700;pointer-events:none;}
+  .node .bd{background:rgba(0,0,0,0.3);color:#fff;border-radius:8px;padding:0 5px;line-height:15px;}
+  .node .bd.none{background:transparent;color:rgba(0,0,0,0.55);box-shadow:inset 0 0 0 1px rgba(0,0,0,0.35);}
+  .node .bd.warn{background:#a3361f;}
+  .bp-check{background:rgba(224,169,123,0.12);border-left:3px solid #e0a97b;border-radius:0 3px 3px 0;padding:6px 8px;margin:8px 0 0;font-size:12px;line-height:1.45;}
+  .bp-check button{margin-left:6px;font-size:11px;padding:1px 7px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:3px;cursor:pointer;}
   .node .handle{position:absolute;right:-8px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--ink);border:2px solid var(--bg);cursor:crosshair;opacity:0;transition:opacity 0.12s;}
   .node:hover .handle,.node.selected .handle,.node:focus-visible .handle{opacity:1;}
   .node-edit{display:block;width:100%;min-width:150px;font:inherit;color:#000;background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,0.4);border-radius:2px;padding:1px 4px;user-select:text;}
@@ -357,6 +363,7 @@
             </select>
           </label>
           <div class="bp-info" id="insInfo"></div>
+          <div id="bpChecks"></div>
           <h4>Cartões deste bloco <span id="bpCardCount"></span></h4>
           <div id="bpCards"></div>
           <button class="btn" id="bpAddCard">+ Cartão neste bloco</button>
@@ -810,13 +817,20 @@ function nodesInFlowOrder(pred){
 function coverage(){
   const nodeIds = new Set(state.nodes.map(n=>n.id));
   const withCards = new Set(state.cards.filter(linksToNode).map(c=>c.ref));
+  const hasText = id => state.rules.some(r=>r.ref === id && r.text.trim());
+  const blockOf = c => nodeById(c.ref);
   return {
     noCards: nodesInFlowOrder(n=>!withCards.has(n.id)),
-    noText: nodesInFlowOrder(n=>!state.rules.some(r=>r.ref === n.id && r.text.trim())),
+    noText: nodesInFlowOrder(n=>!hasText(n.id)),
+    cardsNoText: nodesInFlowOrder(n=>withCards.has(n.id) && !hasText(n.id)),
+    textNoCards: nodesInFlowOrder(n=>!withCards.has(n.id) && hasText(n.id)),
+    kindMismatch: state.cards.filter(c=>linksToNode(c) && blockOf(c) && blockOf(c).kind !== c.kind),
+    badComponent: state.cards.filter(c=>scopeOf(c) === 'component' && blockOf(c) && blockOf(c).kind !== 'DATA'),
     orphanCards: state.cards.filter(c=>linksToNode(c) && (!c.ref || !nodeIds.has(c.ref))),
     orphanRules: state.rules.filter(r=>r.ref && !nodeIds.has(r.ref)),
   };
 }
+const plural = (n, one, many) => n+' '+(n === 1 ? one : many);
 
 // text edits are saved after a short pause, and immediately on blur / tab change / leaving the page
 function scheduleSave(){
@@ -1156,12 +1170,30 @@ function renderFlow(){
     const k = document.createElement('span'); k.className = 'kind'; k.textContent = n.kind;
     const l = document.createElement('span'); l.className = 'label'; l.textContent = n.label;
     const h = document.createElement('i'); h.className = 'handle'; h.title = 'Arrasta para ligar a outro nó';
-    el.append(k, l, h);
+    el.append(k, l, h, nodeBadges(n));
     world.appendChild(el);
   });
   if(fid){ const f = nodeEl(fid); if(f) f.focus({preventScroll:true}); }
   if(needsFit && canvas.clientWidth){ needsFit = false; fitView(); }
   drawEdges(); drawMinimap(); updateBlockPanel();
+}
+// small pills in the corner of each block: how many Gherkin cards it has, whether it has rules text, and warnings
+function nodeBadges(n){
+  const wrap = document.createElement('span'); wrap.className = 'badges'; wrap.setAttribute('aria-hidden', 'true');
+  const cards = cardsFor(n.id);
+  const text = !!(ruleFor(n.id) && ruleFor(n.id).text.trim());
+  const pill = (txt, cls, title)=>{ const b = document.createElement('span'); b.className = 'bd '+cls; b.textContent = txt; b.title = title; wrap.appendChild(b); };
+  if(cards.some(c=>c.kind !== n.kind) || cards.some(c=>scopeOf(c) === 'component' && n.kind !== 'DATA')) pill('⚠', 'warn', 'Há cartões com o tipo ou o âmbito por acertar: vê o painel do bloco');
+  pill('▤ '+cards.length, cards.length ? '' : 'none', cards.length ? plural(cards.length, 'cartão Gherkin', 'cartões Gherkin') : 'Sem cartões Gherkin');
+  pill('¶', text ? '' : 'none', text ? 'Tem texto nas regras' : 'Sem texto nas regras');
+  return wrap;
+}
+function updateNodeBadges(){
+  state.nodes.forEach(n=>{
+    const el = nodeEl(n.id);
+    const old = el && el.querySelector('.badges');
+    if(old) old.replaceWith(nodeBadges(n));
+  });
 }
 function render(){ renderFlow(); renderCards(); updateSaveIndicator(); }
 
@@ -1573,6 +1605,7 @@ function updateBlockPanel(){
   $('insInfo').textContent = 'Ligações: '+ins+' a entrar · '+outs+' a sair';
 
   const cards = cardsFor(only.id);
+  renderBlockChecks(only, cards);
   $('bpCardCount').textContent = cards.length ? '('+cards.length+')' : '';
   const box = $('bpCards'); box.textContent = '';
   if(!cards.length){
@@ -1597,6 +1630,25 @@ function updateBlockPanel(){
   });
   const ta = $('bpRules');
   if(document.activeElement !== ta) ta.value = (ruleFor(only.id) || {text: ''}).text;
+}
+// warnings about this block, each with a one-click fix where there is one
+function renderBlockChecks(n, cards){
+  const box = $('bpChecks'); box.textContent = '';
+  const add = (msg, label, fix)=>{
+    const d = document.createElement('div'); d.className = 'bp-check';
+    d.append(msg);
+    if(label){ const b = document.createElement('button'); b.textContent = label; b.addEventListener('click', fix); d.appendChild(b); }
+    box.appendChild(d);
+  };
+  const hasText = !!(ruleFor(n.id) && ruleFor(n.id).text.trim());
+  cards.filter(c=>c.kind !== n.kind).forEach(c=>{
+    add('O cartão «'+c.title+'» é '+c.kind+' mas o bloco é '+n.kind+'.', 'Igualar ao bloco', ()=>{ c.kind = n.kind; saveState(); render(); });
+  });
+  cards.filter(c=>scopeOf(c) === 'component' && n.kind !== 'DATA').forEach(c=>{
+    add('O cartão «'+c.title+'» é de Componente, mas este bloco já não é DATA.', 'Passar a Bloco', ()=>{ c.scope = 'node'; saveState(); render(); });
+  });
+  if(cards.length && !hasText) add('Há cartões mas ainda não escreveste o texto nas regras deste bloco.', 'Escrever texto', ()=>$('bpRules').focus());
+  if(!cards.length && hasText) add('Há texto nas regras mas nenhum cartão Gherkin neste bloco.', '+ Cartão', ()=>$('bpAddCard').click());
 }
 $('bpRules').addEventListener('input', (e)=>{
   if(selection.size === 1) setRuleText([...selection][0], e.target.value);
@@ -1726,7 +1778,9 @@ function renderCoverage(){
     });
     if(cv.noCards.length > 12) el.appendChild(span('', '+'+(cv.noCards.length-12)+' outros'));
   }
-  if(cv.orphanCards.length) el.appendChild(span('warn', '⚠ '+cv.orphanCards.length+' cartão(ões) sem bloco válido.'));
+  if(cv.orphanCards.length) el.appendChild(span('warn', '⚠ '+plural(cv.orphanCards.length, 'cartão sem bloco válido', 'cartões sem bloco válido')+'.'));
+  if(cv.kindMismatch.length) el.appendChild(span('warn', '⚠ '+plural(cv.kindMismatch.length, 'cartão com tipo diferente do do seu bloco', 'cartões com tipo diferente do do seu bloco')+' (corrige no painel do bloco).'));
+  if(cv.badComponent.length) el.appendChild(span('warn', '⚠ '+plural(cv.badComponent.length, 'cartão de Componente ligado a um bloco que já não é DATA', 'cartões de Componente ligados a blocos que já não são DATA')+'.'));
 }
 
 function cardEl(c){
@@ -1735,6 +1789,8 @@ function cardEl(c){
   const node = linksToNode(c) ? nodeById(c.ref) : null;
   let meta = '<span class="scope-pill">'+SCOPE_LABEL[sc]+'</span>';
   if(linksToNode(c)) meta += node ? '<span>'+escapeHtml(node.label)+'</span>' : '<span class="missing">⚠ bloco em falta</span>';
+  if(node && node.kind !== c.kind) meta += '<span class="missing">⚠ tipo ≠ bloco ('+node.kind+')</span>';
+  if(node && sc === 'component' && node.kind !== 'DATA') meta += '<span class="missing">⚠ o bloco já não é DATA</span>';
   const el = document.createElement('div');
   el.className = 'rule-card';
   el.innerHTML = `
@@ -1832,6 +1888,7 @@ function setRuleText(nodeId, text){
   }
   r.text = text;
   if(!r.text.trim()) state.rules = state.rules.filter(x=>x !== r);   // an emptied block section disappears
+  updateNodeBadges();
   scheduleSave();
 }
 function focusRuleSection(nodeId){
@@ -1907,7 +1964,7 @@ function sectionEl(r, i){
     if(n){
       const k = cardsFor(n.id).length;
       const b = document.createElement('button'); b.className = 'linkbtn';
-      b.textContent = k ? k+' cartão'+(k === 1 ? '' : 's')+' Gherkin neste bloco' : 'Sem cartões Gherkin neste bloco';
+      b.textContent = k ? k+' cartão'+(k === 1 ? '' : 's')+' Gherkin neste bloco' : '⚠ Sem cartões Gherkin neste bloco';
       b.addEventListener('click', ()=>{ cardsFilter = {scope:'all', ref:n.id}; gotoTab('cards'); });
       foot.appendChild(b);
     }
@@ -1925,6 +1982,16 @@ function renderRulesMissing(){
   const info = document.createElement('span');
   info.textContent = withText+' de '+state.nodes.length+' blocos têm texto nas regras.';
   box.appendChild(info);
+  const cv = coverage();
+  if(cv.cardsNoText.length){
+    const l = document.createElement('span'); l.className = 'warn';
+    l.textContent = 'Têm cartões mas ainda não têm texto ('+cv.cardsNoText.length+'):';
+    box.appendChild(l);
+    cv.cardsNoText.slice(0, 14).forEach(n=>{
+      box.appendChild(chipButton(n.label, 'Escrever o texto deste bloco', ()=>focusRuleSection(n.id)));
+    });
+    if(cv.cardsNoText.length > 14) box.appendChild(document.createTextNode('+'+(cv.cardsNoText.length-14)+' outros'));
+  }
   const have = new Set(state.rules.filter(r=>r.ref).map(r=>r.ref));
   const missing = nodesInFlowOrder(n=>!have.has(n.id));
   if(!missing.length) return;
@@ -2072,9 +2139,105 @@ function renderSummary(){
   s.innerHTML = `<b>${escapeHtml(document.getElementById('gameName').value || 'Jogo Dummy')}</b> —
     ${state.nodes.length} nós de fluxo, ${state.edges.length} ligações, ${state.cards.length} cartões de lógica, ${state.rules.filter(r=>r.text.trim()).length} secções de regras com texto.
     ${state.cards.length===0 ? ' Cria pelo menos um cartão antes de gerar.' : ''}
-    ${(()=>{ const n = coverage().noCards.length; return n ? ' <span style="color:#e0a97b">⚠ '+n+' bloco(s) sem cartões: o AI vai ter de adivinhar essas regras.</span>' : ''; })()}`;
+    ${(()=>{
+      const cv = coverage(), w = [];
+      if(cv.noCards.length) w.push(plural(cv.noCards.length, 'bloco sem cartões', 'blocos sem cartões')+': o AI vai ter de adivinhar essas regras');
+      if(cv.cardsNoText.length) w.push(plural(cv.cardsNoText.length, 'bloco com cartões mas sem texto', 'blocos com cartões mas sem texto')+' nas regras: o documento fica incompleto');
+      if(cv.kindMismatch.length) w.push(plural(cv.kindMismatch.length, 'cartão com tipo diferente do bloco', 'cartões com tipo diferente do bloco'));
+      if(cv.badComponent.length) w.push(plural(cv.badComponent.length, 'cartão de Componente num bloco que já não é DATA', 'cartões de Componente em blocos que já não são DATA'));
+      return w.length ? '<br><span style="color:#e0a97b">⚠ '+w.join(' · ')+'.</span>' : '';
+    })()}`;
   document.getElementById('promptOut').value = buildPrompt();
 }
+
+// bitnikgames design system: src/tokens.css + base.css + components.css + game-ui.css, comments removed.
+// Embedded in the prompt because chat previews often block external stylesheets and some AIs cannot open links.
+const DESIGN_SYSTEM_URL = 'https://github.com/dferreiramarques/bitnikgames-design-system';
+const DESIGN_SYSTEM_CSS = `:root{--color-yellow: #e8a93b;--color-yellow-deep: #c4841f;--color-orange: #ea7c2e;--color-orange-deep: #c85f1d;--color-brick: #b8461f;--color-brick-deep: #8f3417;--color-cream: #fbf3e4;--color-cream-soft: #f3e4cb;--color-cream-strong: #ecd6ac;--color-ink: #2b1b12;--color-ink-soft: #5b4636;--color-white: #fffaf1;--bg: var(--color-cream);--bg-alt: var(--color-cream-soft);--text: var(--color-ink);--text-muted: var(--color-ink-soft);--border: var(--color-cream-strong);--brand-primary: var(--color-brick);--brand-primary-hover: var(--color-brick-deep);--brand-secondary: var(--color-orange);--brand-accent: var(--color-yellow);--radius-sm: 8px;--radius-md: 14px;--radius-lg: 24px;--radius-pill: 999px;--shadow-color-rgb: 43,27,18;--shadow-card: 0 6px 20px -8px rgba(var(--shadow-color-rgb),0.25);--shadow-card-hover: 0 12px 28px -10px rgba(var(--shadow-color-rgb),0.32);--font-display: "Baloo 2","Fredoka",system-ui,sans-serif;--font-body: "Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--container-width: 1120px}
+*,*::before,*::after{box-sizing: border-box}
+html{scroll-behavior: smooth}
+body{margin: 0;background: var(--bg);color: var(--text);font-family: var(--font-body);font-size: 1rem;line-height: 1.6;-webkit-font-smoothing: antialiased}
+img,svg{max-width: 100%;display: block}
+a{color: inherit;text-decoration: none}
+h1,h2,h3,h4{font-family: var(--font-display);line-height: 1.15;margin: 0 0 0.5em;color: var(--text);font-weight: 700}
+h1{font-size: clamp(2.2rem,4vw + 1rem,3.4rem)}
+h2{font-size: clamp(1.7rem,2.4vw + 1rem,2.4rem)}
+h3{font-size: 1.3rem}
+p{margin: 0 0 1em}
+ul{margin: 0;padding: 0;list-style: none}
+button{font-family: inherit}
+:focus-visible{outline: 3px solid var(--brand-primary);outline-offset: 2px}
+.text-muted{color: var(--text-muted)}
+.visually-hidden{position: absolute;width: 1px;height: 1px;padding: 0;margin: -1px;overflow: hidden;clip: rect(0,0,0,0);white-space: nowrap;border: 0}
+.container{width: 100%;max-width: var(--container-width);margin-inline: auto;padding-inline: 1.25rem}
+.section{padding-block: clamp(3rem,6vw,5.5rem)}
+.section-head{max-width: 640px;margin-bottom: 2.25rem}
+.section-head .eyebrow,.eyebrow{display: inline-block;font-family: var(--font-display);font-size: 0.85rem;font-weight: 700;letter-spacing: 0.06em;text-transform: uppercase;color: var(--brand-primary);margin-bottom: 0.5rem}
+.section-head p{color: var(--text-muted);font-size: 1.05rem}
+.grid{display: grid;gap: 1.5rem}
+.grid-3{grid-template-columns: repeat(3,1fr)}
+.grid-4{grid-template-columns: repeat(4,1fr)}
+@media (max-width: 900px){.grid-3,.grid-4{grid-template-columns: repeat(2,1fr)}
+}
+@media (max-width: 620px){.grid-3,.grid-4{grid-template-columns: 1fr}
+}
+.btn{display: inline-flex;align-items: center;gap: 0.5rem;font-family: var(--font-display);font-weight: 600;font-size: 0.95rem;padding: 0.7rem 1.4rem;border-radius: var(--radius-pill);border: 2px solid transparent;cursor: pointer;transition: transform 0.15s ease,background-color 0.15s ease,color 0.15s ease,border-color 0.15s ease;white-space: nowrap}
+.btn:hover{transform: translateY(-1px)}
+.btn-primary{background: var(--brand-primary);color: var(--color-white)}
+.btn-primary:hover{background: var(--brand-primary-hover)}
+.btn-secondary{background: var(--brand-accent);color: var(--color-ink)}
+.btn-secondary:hover{background: var(--color-yellow-deep);color: var(--color-white)}
+.btn-outline{background: transparent;border-color: var(--color-ink);color: var(--text)}
+.btn-outline:hover{background: var(--color-ink);color: var(--color-white)}
+.btn-ghost{background: transparent;border-color: var(--border);color: var(--text-muted)}
+.btn-ghost:hover{border-color: var(--brand-primary);color: var(--brand-primary)}
+.btn-block{width: 100%;justify-content: center}
+.badge{display: inline-flex;align-items: center;gap: 0.35rem;font-family: var(--font-display);font-size: 0.75rem;font-weight: 600;letter-spacing: 0.02em;padding: 0.3rem 0.7rem;border-radius: var(--radius-pill)}
+.badge-accent{background: var(--color-yellow);color: var(--color-ink)}
+.badge-primary{background: var(--color-brick);color: var(--color-white)}
+.badge-secondary{background: var(--color-orange);color: var(--color-white)}
+.badge-outline{background: transparent;border: 2px solid var(--text-muted);color: var(--text-muted)}
+.badge-ink{background: var(--color-ink);color: var(--color-white)}
+.card{background: var(--color-white);border-radius: var(--radius-md);border: 1px solid var(--border);overflow: hidden;box-shadow: var(--shadow-card);transition: transform 0.18s ease,box-shadow 0.18s ease;display: flex;flex-direction: column}
+.card:hover{transform: translateY(-4px);box-shadow: var(--shadow-card-hover)}
+.card-media{aspect-ratio: 4 / 3;background: linear-gradient(135deg,var(--color-yellow) 0%,var(--color-orange) 55%,var(--color-brick) 100%);display: flex;align-items: center;justify-content: center;color: var(--color-white);font-family: var(--font-display);font-weight: 700;font-size: 0.95rem;text-align: center;padding: 1rem}
+.card-body{padding: 1.1rem 1.25rem 1.4rem;display: flex;flex-direction: column;gap: 0.6rem;flex: 1}
+.card-meta{display: flex;flex-wrap: wrap;gap: 0.4rem;font-size: 0.82rem;color: var(--text-muted)}
+.card-meta span::after{content: "·";margin-left: 0.4rem;color: var(--border)}
+.card-meta span:last-child::after{content: ""}
+.card-title{font-size: 1.15rem;margin: 0}
+.card-excerpt{color: var(--text-muted);font-size: 0.92rem;margin: 0}
+.card-footer{margin-top: auto;display: flex;align-items: center;justify-content: space-between;gap: 0.5rem}
+.detail-grid{display: grid;grid-template-columns: 1fr 1fr;gap: 3rem;align-items: start}
+.detail-media{aspect-ratio: 1;border-radius: var(--radius-lg);background: linear-gradient(135deg,var(--color-yellow),var(--color-orange) 55%,var(--color-brick));display: flex;align-items: center;justify-content: center;color: var(--color-white);font-family: var(--font-display);font-weight: 700;font-size: 1.4rem;text-align: center;padding: 2rem}
+.back-link{display: inline-block;color: var(--text-muted);font-weight: 600;margin-bottom: 1rem}
+.detail-lede{font-size: 1.1rem;color: var(--text-muted)}
+.detail-tags{display: flex;gap: 0.5rem;flex-wrap: wrap;margin-bottom: 1.5rem}
+.detail-tags li{font-size: 0.8rem;font-weight: 600;background: var(--bg-alt);border-radius: var(--radius-pill);padding: 0.3rem 0.75rem}
+.detail-content{border-top: 1px solid var(--border);padding-top: 1.75rem}
+.detail-content h2{font-size: 1.4rem;margin-top: 1.75rem}
+@media (max-width: 800px){.detail-grid{grid-template-columns: 1fr}
+}
+:root{--game-color-1: var(--brand-primary);--game-color-1-dim: color-mix(in srgb,var(--game-color-1) 18%,var(--bg));--game-color-2: var(--brand-secondary);--game-color-2-dim: color-mix(in srgb,var(--game-color-2) 18%,var(--bg));--game-color-3: var(--brand-accent);--game-color-3-dim: color-mix(in srgb,var(--game-color-3) 18%,var(--bg));--game-color-4: var(--text-muted);--game-color-4-dim: color-mix(in srgb,var(--game-color-4) 18%,var(--bg))}
+.chip{display: inline-flex;align-items: center;gap: 0.35rem;font-family: var(--font-display);font-size: 0.72rem;font-weight: 700;padding: 0.2rem 0.6rem;border-radius: var(--radius-pill);border: 1.5px solid var(--chip-color,var(--brand-primary));background: var(--chip-color-dim,var(--bg-alt));color: var(--chip-color,var(--brand-primary))}
+.chip-1{--chip-color: var(--game-color-1);--chip-color-dim: var(--game-color-1-dim)}
+.chip-2{--chip-color: var(--game-color-2);--chip-color-dim: var(--game-color-2-dim)}
+.chip-3{--chip-color: var(--game-color-3);--chip-color-dim: var(--game-color-3-dim)}
+.chip-4{--chip-color: var(--game-color-4);--chip-color-dim: var(--game-color-4-dim)}
+.game-card{position: relative;border-radius: var(--radius-sm);overflow: hidden;border: 2px solid var(--border);background: var(--bg-alt);cursor: default;user-select: none;transition: transform 0.15s ease,box-shadow 0.15s ease,border-color 0.15s ease}
+.game-card.is-clickable{cursor: pointer}
+.game-card.is-clickable:hover{transform: translateY(-6px);box-shadow: var(--shadow-card-hover);z-index: 10}
+.game-card.is-selected{border-color: var(--brand-primary) !important;box-shadow: 0 0 0 3px color-mix(in srgb,var(--brand-primary) 35%,transparent);transform: translateY(-4px);z-index: 10}
+.game-card.is-disabled{opacity: 0.35;cursor: not-allowed}
+.game-card img{position: absolute;inset: 0;width: 100%;height: 100%;object-fit: cover;object-position: center top}
+.game-card-bar{position: absolute;left: 0;right: 0;bottom: 0;background: rgba(0,0,0,0.65);color: #fff;font-size: 0.65rem;padding: 0.25rem 0.4rem;display: flex;align-items: center;justify-content: center;gap: 0.25rem}
+.badge-circle{display: inline-flex;align-items: center;justify-content: center;width: 26px;height: 26px;border-radius: 50%;background: var(--brand-primary);color: var(--color-white);font-family: var(--font-display);font-weight: 800;font-size: 0.85rem;border: 2px solid var(--color-white);box-shadow: var(--shadow-card-hover)}
+.modal-overlay{position: fixed;inset: 0;background: rgba(0,0,0,0.6);backdrop-filter: blur(3px);display: flex;align-items: center;justify-content: center;padding: 1.5rem;z-index: 100}
+.modal-box{background: var(--color-white);border: 1px solid var(--border);border-radius: var(--radius-lg);padding: 1.75rem;max-width: 480px;width: 100%;max-height: 88vh;overflow-y: auto;box-shadow: var(--shadow-card-hover)}
+.tabs{display: flex;gap: 0.25rem;flex-wrap: wrap;border-bottom: 1px solid var(--border);margin-bottom: 1rem}
+.tab{background: none;border: none;cursor: pointer;font-family: var(--font-display);font-weight: 600;font-size: 0.85rem;color: var(--text-muted);padding: 0.55rem 0.9rem;border-bottom: 2px solid transparent;margin-bottom: -1px}
+.tab.active{color: var(--brand-primary);border-bottom-color: var(--brand-primary)}
+.toast{position: fixed;left: 50%;bottom: 1.5rem;transform: translateX(-50%);background: var(--color-ink);color: var(--color-cream);padding: 0.6rem 1.1rem;border-radius: var(--radius-pill);font-size: 0.85rem;font-weight: 600;box-shadow: var(--shadow-card-hover);z-index: 200;pointer-events: none}`;
 
 function buildPrompt(){
   const gameName = document.getElementById('gameName').value || 'Jogo Dummy';
@@ -2121,7 +2284,7 @@ ${rulesTxt}
 És um programador de protótipos de jogos de tabuleiro no motor Bitnik Studio (BGE).
 
 # OBJETIVO
-Gera UM único ficheiro HTML (HTML + CSS + JS inline, sem frameworks, sem dependências externas, sem rede) com um protótipo "dummy" jogável do jogo abaixo. Serve para validar as regras, não precisa de arte. Implementa APENAS as regras descritas — não inventes regras novas.
+Gera UM único ficheiro HTML (HTML + CSS + JS inline, sem frameworks e sem rede; a única exceção é o link das Google Fonts do design system) com um protótipo "dummy" jogável do jogo abaixo. Serve para validar as regras e tem de seguir o design system da bitnikgames (ver DESIGN SYSTEM). Implementa APENAS as regras descritas — não inventes regras novas.
 
 # TAXONOMIA BGE (os 4 tipos de nó e de cartão)
 - DATA: estado observável e condições do jogo — o que existe ou é verdade num dado momento (variáveis, contadores, posse de tokens). Corresponde à cláusula "Dado".
@@ -2143,12 +2306,26 @@ ${rulesSection}# REGRAS (cartões Gherkin)
 Cada cartão indica o seu âmbito: regras gerais do jogo, restrições do jogador, componentes (ligados a um nó DATA) ou regras de um bloco do fluxo.
 ${cardsTxt}
 
+# DESIGN SYSTEM (obrigatório: bitnikgames)
+O protótipo usa o design system da bitnikgames. Documentação e código: ${DESIGN_SYSTEM_URL}
+- Copia o CSS abaixo, sem o alterar, para uma tag <style> no início do <head>. Não inventes cores, raios, sombras nem fontes fora destes tokens.
+- Fontes: põe no <head> este link (é o único recurso externo permitido; sem rede, o navegador usa a fonte do sistema):
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+- Usa as classes do sistema em vez de CSS novo: botões .btn com .btn-primary, .btn-secondary, .btn-outline ou .btn-ghost; etiquetas .badge com .badge-accent, .badge-primary, .badge-secondary, .badge-outline ou .badge-ink; layout .container, .section, .grid.
+- Para o jogo: .chip com .chip-1 a .chip-4 (uma cor por jogador ou equipa), .game-card (com .is-clickable, .is-selected, .is-disabled) para peças e cartas, .badge-circle para números ou ordem, .modal-overlay com .modal-box para o fim de jogo e mensagens, .tabs com .tab (.active), .toast para avisos curtos (ex.: jogada inválida). Se precisares de mais cores de jogo, redefine --game-color-1 a --game-color-4 num :root a seguir ao CSS do sistema.
+- Escreve CSS próprio só para o que o sistema não cobre (o tabuleiro e o layout do jogo), sempre com var(--...) para cor, raio, sombra e fonte, sem valores fixos.
+- Aspeto por omissão: fundo creme, texto tinta, botão principal tijolo, títulos em Baloo 2 e texto em Inter.
+----- CSS DO DESIGN SYSTEM (início) -----
+${DESIGN_SYSTEM_CSS}
+----- CSS DO DESIGN SYSTEM (fim) -----
+
 # REQUISITOS DE IMPLEMENTAÇÃO
-1. Um único ficheiro HTML válido e autocontido.
+1. Um único ficheiro HTML válido e autocontido (o CSS do design system vai inline; o único recurso externo é o link das fontes).
 2. Respeita a ordem do fluxo: uma ação só é permitida na fase certa (nós FLOW) e só depois dos nós que a precedem.
-3. Interface mínima mas jogável: estado do jogo sempre visível (nós DATA), botões para cada ação (nós ACTION), e o resultado das regras SCORE mostrado de forma clara (pontos, tokens, cartas).
+3. Interface mínima mas jogável, feita com as classes do design system: estado do jogo sempre visível (nós DATA), botões .btn para cada ação (nós ACTION), e o resultado das regras SCORE mostrado de forma clara (pontos, tokens, cartas).
 4. Comenta o código a indicar a que bloco (id do nó) e cartão cada parte corresponde (ex: // ACTION n5 · c2: <título do cartão>).
 5. Se uma regra for ambígua, assume a interpretação mais simples e regista-a num comentário "// ASSUNÇÃO: ..." — não faças perguntas.
+6. O visual segue o design system: sem cores, raios, sombras ou fontes fora dos tokens, e com as classes do sistema sempre que existir uma que sirva.
 
 # FORMATO DE SAÍDA
 Entrega o resultado como um FICHEIRO HTML, não como texto solto na conversa:
@@ -2561,6 +2738,7 @@ const HELP_HTML = `
 <details><summary>O meu trabalho desapareceu</summary><p>Os projetos ficam no browser onde os guardaste. Trabalho que nunca guardaste não é gravado: usa <b>Guardar</b> (o indicador junto aos botões diz "Por guardar" ou "Guardado"). Modo anónimo, outro browser ou dispositivo e limpar os dados do site apagam-nos. Faz cópias de segurança com <b>Exportar</b>.</p></details>
 <details><summary>"Gerar com API" dá erro</summary><p>Só funciona dentro do preview de artifacts do Claude.ai. Fora dele usa <b>Copiar prompt para o teu AI</b> e cola o resultado na caixa de código.</p></details>
 <details><summary>O AI devolveu o código com texto à volta, ou cortado</summary><p>Cola na mesma: o markdown e o texto antes de &lt;!DOCTYPE&gt; e depois de &lt;/html&gt; são removidos. Se o código vier cortado a meio, pede ao AI para continuar ou usa um modelo com respostas mais longas.</p></details>
+<details><summary>O protótipo não tem o aspeto da bitnikgames</summary><p>O prompt leva o CSS do design system e pede ao AI que o cole num &lt;style&gt; e use as suas classes (<code>.btn</code>, <code>.game-card</code>, <code>.badge</code>…). Confirma isso no código e, se faltar, diz ao AI para usar o design system do prompt sem inventar cores nem fontes.</p></details>
 <details><summary>O protótipo não cumpre uma regra</summary><p>Torna o cartão mais concreto e gera de novo. Procura no código os comentários <code>// ASSUNÇÃO</code>: mostram onde o AI teve de adivinhar.</p></details>
 <details><summary>Não consigo ligar dois nós</summary><p>Ligações duplicadas ou de um nó a si próprio são recusadas; a razão aparece por cima do canvas.</p></details>
 <details><summary>"Importar" falha</summary><p>O ficheiro tem de ser .json com <code>nodes</code>, <code>edges</code> e <code>cards</code> (e, opcionalmente, <code>rules</code>), ids do tipo <code>n1</code> / <code>c1</code> / <code>r1</code>, e ligações só entre nós que existem. A mensagem junto aos botões diz o que está mal.</p></details>
@@ -2571,6 +2749,7 @@ const HELP_HTML = `
 
 <div class="help-links">
   <a class="btn" href="${GUIDE_URL}" target="_blank" rel="noopener">Guia completo (GitHub)</a>
+  <a class="btn" href="${DESIGN_SYSTEM_URL}" target="_blank" rel="noopener">Design system (GitHub)</a>
   <button class="btn primary" id="helpTour">▶ Fazer o tour</button>
 </div>`;
 $('helpBody').innerHTML = HELP_HTML;
