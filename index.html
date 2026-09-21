@@ -92,6 +92,56 @@
   .minimap.empty{display:none;}
   .minimap .mm-view{fill:rgba(233,231,221,0.1);stroke:var(--ink);stroke-width:2;vector-effect:non-scaling-stroke;}
   @media (max-width:640px){ .minimap{display:none;} }
+  /* ---- Onboarding: header actions, first-visit banner, tour, help ---- */
+  .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .top-actions{display:flex;gap:8px;}
+  .onboard{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin:0 0 14px;padding:10px 14px;background:var(--panel-2);border:1px solid var(--score);border-radius:4px;font-size:13.5px;}
+  .onboard[hidden]{display:none;}
+  .onboard-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .save-indicator{font-size:12.5px;padding:2px 8px;border-radius:10px;}
+  .save-indicator.unsaved{color:#1b1707;background:var(--score);font-weight:600;}
+  .save-indicator.saved{color:#7be0b5;}
+  kbd{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:1px 5px;color:var(--ink);white-space:nowrap;}
+  .commit-actions{display:inline-flex;gap:6px;align-items:center;}
+  .btn.small{padding:2px 8px;font-size:11.5px;}
+
+  .tour{position:fixed;inset:0;z-index:1000;pointer-events:none;}
+  .tour[hidden]{display:none;}
+  .tour-spot{position:fixed;border-radius:6px;box-shadow:0 0 0 9999px rgba(8,9,13,0.74), 0 0 0 2px var(--score);pointer-events:none;transition:left .2s, top .2s, width .2s, height .2s;}
+  .tour-pop{position:fixed;pointer-events:auto;width:380px;max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);overflow:auto;background:var(--panel-2);color:var(--ink);border:1px solid #5b5d6c;border-radius:6px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,0.5);font-size:13.5px;line-height:1.5;}
+  .tour-pop:focus{outline:none;}
+  .tour-pop h2{font-family:'Barlow Condensed',sans-serif;font-size:21px;margin:0 0 6px;}
+  .tour-pop p{margin:0 0 8px;}
+  .tour-pop ol,.tour-pop ul{margin:0 0 8px;padding-left:20px;}
+  .tour-pop .try{margin:8px 0 0;padding:6px 9px;border-left:3px solid var(--score);background:rgba(209,167,54,0.1);border-radius:0 3px 3px 0;}
+  .tour-step{font-size:11.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
+  .tour-opt{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:13px;cursor:pointer;}
+  .tour-opt[hidden]{display:none;}
+  .tour-nav{display:flex;align-items:center;gap:8px;margin-top:10px;}
+  .tour-dots{display:flex;gap:4px;flex:1;justify-content:center;flex-wrap:wrap;}
+  .tour-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);border:1px solid #5b5d6c;}
+  .tour-dots i.on{background:var(--score);border-color:var(--score);}
+  @media (max-width:640px){
+    .tour-pop{left:12px !important;right:12px;bottom:12px;top:auto !important;width:auto;max-height:52vh;}
+    body.tour-open .app{padding-bottom:60vh;}   /* lets the last targets scroll above the docked card */
+  }
+  @media (prefers-reduced-motion:reduce){ .tour-spot{transition:none;} }
+  .canvas-wrap.show-handles .node .handle{opacity:1;}
+
+  dialog.help{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 32px);padding:0;background:var(--panel);color:var(--ink);border:1px solid #5b5d6c;border-radius:8px;}
+  dialog.help::backdrop{background:rgba(8,9,13,0.7);}
+  .help-head{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--panel);padding:12px 18px;border-bottom:1px solid var(--line);}
+  .help-head h2{font-family:'Barlow Condensed',sans-serif;font-size:24px;margin:0;}
+  .help-body{padding:6px 18px 18px;font-size:13.5px;line-height:1.55;}
+  .help-body h3{font-family:'Barlow Condensed',sans-serif;font-size:19px;margin:18px 0 6px;color:var(--score);}
+  .help-body table{border-collapse:collapse;width:100%;}
+  .help-body td,.help-body th{padding:5px 10px 5px 0;vertical-align:top;text-align:left;border-bottom:1px solid var(--line);}
+  .help-body details{border-bottom:1px solid var(--line);padding:6px 0;}
+  .help-body summary{cursor:pointer;font-weight:600;}
+  .help-body details p{margin:6px 0 2px;color:var(--ink-dim);}
+  .help-body a{color:var(--score);}
+  .help-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
   .shortcuts{margin-top:10px;font-size:12.5px;color:var(--ink-dim);}
   .shortcuts summary{cursor:pointer;}
   .shortcuts table{border-collapse:collapse;margin-top:8px;}
@@ -147,7 +197,13 @@
 <div class="app">
 
   <header class="top">
-    <h1>Bitnik Rule Forge</h1>
+    <div class="top-row">
+      <h1>Bitnik Rule Forge</h1>
+      <div class="top-actions">
+        <button class="btn" id="tourBtn" title="Tour guiado da ferramenta">▶ Tour</button>
+        <button class="btn" id="helpBtn" title="Ajuda de consulta">? Ajuda</button>
+      </div>
+    </div>
     <div class="subtitle">Desenha o fluxo → escreve os cartões de lógica (Gherkin) → gera o dummy PWA com apoio de LLM → revê e faz commit.</div>
     <div class="game-name">
       <label for="gameName">Jogo</label>
@@ -164,9 +220,19 @@
       <button class="btn" id="importBtn" title="Carregar um projeto de um ficheiro .json">Importar…</button>
       <button class="btn" id="exportBtn" title="Descarregar o fluxo e os cartões deste projeto em .json">Exportar</button>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
+      <span class="save-indicator" id="saveIndicator" role="status"></span>
       <span class="status" id="projectStatus"></span>
     </div>
   </header>
+
+  <div class="onboard" id="onboardBanner" hidden role="region" aria-label="Primeiros passos">
+    <div><b>Primeira vez aqui?</b> Faz o tour guiado (cerca de 3 minutos) ou abre a ajuda de consulta.</div>
+    <div class="onboard-actions">
+      <button class="btn primary" id="onboardTour">Fazer o tour</button>
+      <button class="btn" id="onboardHelp">Abrir a ajuda</button>
+      <button class="btn" id="onboardClose" aria-label="Fechar este aviso" title="Fechar">✕</button>
+    </div>
+  </div>
 
   <nav class="tabs">
     <button class="tab-btn active" data-tab="flow">1 · Fluxo</button>
@@ -221,22 +287,9 @@
       </div>
       <svg class="minimap empty" id="minimap" aria-hidden="true"></svg>
     </div>
-    <details class="shortcuts">
+    <details class="shortcuts" id="shortcuts">
       <summary>Atalhos e gestos</summary>
-      <table>
-        <tr><td><kbd>Duplo clique</kbd> no fundo</td><td>cria um nó do tipo escolhido</td></tr>
-        <tr><td><kbd>Duplo clique</kbd> / <kbd>F2</kbd> num nó</td><td>renomeia</td></tr>
-        <tr><td>Arrastar a bolinha do nó</td><td>liga a outro nó (largar no vazio cria um nó novo)</td></tr>
-        <tr><td>Arrastar o fundo</td><td>move a vista</td></tr>
-        <tr><td><kbd>Ctrl</kbd> + roda do rato</td><td>zoom</td></tr>
-        <tr><td><kbd>Shift</kbd> + clique / arrastar no fundo</td><td>seleção múltipla / seleção por caixa</td></tr>
-        <tr><td><kbd>Setas</kbd> (<kbd>Shift</kbd> = maior passo)</td><td>mover a seleção</td></tr>
-        <tr><td><kbd>Del</kbd></td><td>apagar nós ou a ligação selecionados</td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>anular / refazer</td></tr>
-        <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Esc</kbd></td><td>selecionar tudo, cancelar / limpar seleção</td></tr>
-        <tr><td><kbd>L</kbd>, <kbd>F</kbd>, <kbd>+</kbd> <kbd>-</kbd> <kbd>0</kbd></td><td>modo ligar, ajustar à janela, zoom</td></tr>
-        <tr><td><kbd>Tab</kbd>, <kbd>Enter</kbd></td><td>navegar entre nós e selecionar (ou ligar, no modo ligar)</td></tr>
-      </table>
+      <table><tbody id="shortcutsBody"></tbody></table>
     </details>
     <div class="legend">
       <span><i class="swatch" style="background:var(--data)"></i>DATA — estado/condições</span>
@@ -314,6 +367,30 @@
   </section>
 
 </div>
+
+<div class="tour" id="tour" hidden>
+  <div class="tour-spot" id="tourSpot"></div>
+  <div class="tour-pop" id="tourPop" role="dialog" aria-modal="false" aria-labelledby="tourTitle" tabindex="-1">
+    <div class="tour-step" id="tourStep"></div>
+    <h2 id="tourTitle"></h2>
+    <div id="tourBody"></div>
+    <label class="tour-opt" id="tourOpt" hidden><input type="checkbox" id="tourExample" checked> <span>Carregar o exemplo Tic Tac Toe para acompanhar o tour com um projeto de verdade.</span></label>
+    <div class="tour-nav">
+      <button class="btn" id="tourSkip">Sair</button>
+      <span class="tour-dots" id="tourDots" aria-hidden="true"></span>
+      <button class="btn" id="tourPrev">Anterior</button>
+      <button class="btn primary" id="tourNext">Seguinte</button>
+    </div>
+  </div>
+</div>
+
+<dialog class="help" id="helpDialog" aria-labelledby="helpTitle">
+  <div class="help-head">
+    <h2 id="helpTitle">Ajuda do Rule Forge</h2>
+    <button class="btn" id="helpClose" aria-label="Fechar a ajuda">Fechar ✕</button>
+  </div>
+  <div class="help-body" id="helpBody"></div>
+</dialog>
 
 <script>
 // ---------- state ----------
@@ -422,6 +499,7 @@ async function loadProject(slug, silent){
 async function saveState(){
   // autosave: only persists if this working copy is already tied to a saved project
   state.gameName = document.getElementById('gameName').value;
+  updateSaveIndicator();
   if(!currentSlug) return;
   try{
     await storageAdapter.set(projectKey(currentSlug), JSON.stringify(state), false);
@@ -455,6 +533,7 @@ async function saveProjectAs(){
   await bumpIndex(slug, name);
   await storageAdapter.set(CURRENT_KEY, slug, false);
   await refreshProjectSelect();
+  updateSaveIndicator();
   document.getElementById('projectStatus').textContent = 'Guardado como "'+name+'".';
 }
 
@@ -833,7 +912,7 @@ function renderFlow(){
   if(needsFit && canvas.clientWidth){ needsFit = false; fitView(); }
   drawEdges(); drawMinimap(); updateInspector();
 }
-function render(){ renderFlow(); renderCards(); }
+function render(){ renderFlow(); renderCards(); updateSaveIndicator(); }
 
 // ----- pointer interactions (mouse, touch and pen through Pointer Events) -----
 function trackDrag(e, onMove, onEnd){
@@ -1420,16 +1499,19 @@ document.getElementById('generateBtn').addEventListener('click', async ()=>{
   }
 });
 
-document.getElementById('downloadBtn').addEventListener('click', ()=>{
-  const code = document.getElementById('codeOut').value;
-  if(!code.trim()){ alert('Não há código para descarregar ainda.'); return; }
+function downloadHtml(code, baseName){
   const blob = new Blob([code], {type:'text/html'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const name = (document.getElementById('gameName').value || 'jogo-dummy').toLowerCase().replace(/[^a-z0-9]+/g,'-');
-  a.href = url; a.download = name+'.html';
+  a.href = url; a.download = slugify(baseName)+'.html';
   a.click();
   URL.revokeObjectURL(url);
+}
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const code = document.getElementById('codeOut').value;
+  if(!code.trim()){ alert('Não há código para descarregar ainda.'); return; }
+  downloadHtml(code, document.getElementById('gameName').value || 'jogo-dummy');
 });
 
 document.getElementById('commitBtn').addEventListener('click', async ()=>{
@@ -1458,7 +1540,15 @@ function renderCommits(){
     const row = document.createElement('div');
     row.className = 'commit-item';
     const d = new Date(c.ts);
-    row.innerHTML = `<span><span class="id">${c.id}</span> — ${escapeHtml(c.gameName)} · ${c.cardCount} cartões, ${c.nodeCount} nós</span><span>${d.toLocaleString('pt-PT')}</span>`;
+    row.innerHTML = `<span><span class="id">${escapeHtml(String(c.id))}</span> — ${escapeHtml(c.gameName)} · ${c.cardCount} cartões, ${c.nodeCount} nós</span>
+      <span class="commit-actions"><button class="btn small" data-act="view">Ver código</button><button class="btn small" data-act="dl">Descarregar</button><span>${d.toLocaleString('pt-PT')}</span></span>`;
+    row.querySelector('[data-act="view"]').addEventListener('click', ()=>{
+      document.getElementById('codeOut').value = c.code;
+      document.getElementById('reviewedCheck').checked = false;
+      document.getElementById('genStatus').textContent = 'Código do commit '+c.id+' carregado na caixa (o commit guardado não muda).';
+      document.getElementById('codeOut').scrollIntoView({block:'center'});
+    });
+    row.querySelector('[data-act="dl"]').addEventListener('click', ()=>downloadHtml(c.code, c.gameName+'-'+c.id));
     list.appendChild(row);
   });
 }
@@ -1468,12 +1558,13 @@ document.getElementById('gameName').addEventListener('change', saveState);
 document.getElementById('loadProjectBtn').addEventListener('click', ()=>{
   const slug = document.getElementById('projectSelect').value;
   if(!slug){ document.getElementById('projectStatus').textContent = 'Escolhe um projeto guardado.'; return; }
+  if(!confirmDiscardUnsaved()) return;
   loadProject(slug);
 });
 document.getElementById('saveAsBtn').addEventListener('click', saveProjectAs);
 document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
 document.getElementById('deleteProjectBtn').addEventListener('click', deleteProject);
-document.getElementById('loadExampleBtn').addEventListener('click', loadTicTacToeExample);
+document.getElementById('loadExampleBtn').addEventListener('click', ()=>loadTicTacToeExample());
 
 // ---------- import / export (.json) ----------
 const KINDS = ['DATA','FLOW','ACTION','SCORE'];
@@ -1512,6 +1603,7 @@ document.getElementById('importFile').addEventListener('change', async (ev)=>{
   catch(e){ status.textContent = 'Importação falhou: o ficheiro não é JSON válido.'; return; }
   const problem = validateProject(data);
   if(problem){ status.textContent = 'Importação falhou: '+problem; return; }
+  if(!confirmDiscardUnsaved()){ status.textContent = 'Importação cancelada.'; return; }
 
   const name = (typeof data.gameName === 'string' && data.gameName.trim()) || file.name.replace(/\.json$/i,'') || 'Jogo importado';
   const slug = await uniqueSlug(name);
@@ -1548,7 +1640,7 @@ document.getElementById('exportBtn').addEventListener('click', ()=>{
 });
 
 // ---------- Tic Tac Toe example ----------
-async function loadTicTacToeExample(){
+async function loadTicTacToeExample(skipConfirm){
   const name = 'Tic Tac Toe (exemplo)';
   const slug = 'tic-tac-toe-exemplo';
   const nodes = [
@@ -1597,6 +1689,13 @@ async function loadTicTacToeExample(){
       when:'um jogador tenta marcar uma casa',
       then:'a jogada é ignorada e o resultado mantém-se'}
   ];
+  if(!skipConfirm){
+    if(!confirmDiscardUnsaved()) return;
+    let stored = null;
+    try{ const r = await storageAdapter.get(projectKey(slug), false); stored = r && r.value ? JSON.parse(r.value) : null; }catch(e){}
+    const same = stored && JSON.stringify({nodes:stored.nodes, edges:stored.edges, cards:stored.cards}) === JSON.stringify({nodes, edges, cards});
+    if(stored && !same && !confirm('Já tens o projeto "'+name+'" guardado, com alterações tuas. Carregar o exemplo substitui-o pelo original e perdes essas alterações. Continuar?')) return;
+  }
   state = {gameName: name, nodes, edges, cards, commits: []};
   afterStateReplaced();
   currentSlug = slug;
@@ -1610,8 +1709,301 @@ async function loadTicTacToeExample(){
   document.getElementById('projectStatus').textContent = 'Exemplo Tic Tac Toe carregado — muda o fluxo e os cartões e depois gera o protótipo.';
 }
 
+// ---------- onboarding: shortcuts, help, guided tour, unsaved-work safety ----------
+const ONBOARD_KEY = 'bitnik-rule-forge:onboarding';
+const GUIDE_URL = 'https://github.com/dferreiramarques/bitnik-logic/blob/main/docs/GUIA.md';
+const EXAMPLE_SLUG = 'tic-tac-toe-exemplo';
+const $ = id => document.getElementById(id);
+
+// trusted static strings (no user input), shared by the canvas footer and the help dialog
+const SHORTCUTS = [
+  ['<kbd>Duplo clique</kbd> no fundo', 'cria um nó do tipo escolhido'],
+  ['<kbd>Duplo clique</kbd> / <kbd>F2</kbd> num nó', 'renomeia'],
+  ['Arrastar a bolinha do nó', 'liga a outro nó (largar no vazio cria um nó novo)'],
+  ['Arrastar o fundo', 'move a vista'],
+  ['<kbd>Ctrl</kbd> + roda do rato', 'zoom'],
+  ['<kbd>Shift</kbd> + clique / arrastar no fundo', 'seleção múltipla / seleção por caixa'],
+  ['<kbd>Setas</kbd> (<kbd>Shift</kbd> = maior passo)', 'mover a seleção'],
+  ['<kbd>Del</kbd>', 'apagar nós ou a ligação selecionados'],
+  ['<kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>', 'anular / refazer'],
+  ['<kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Esc</kbd>', 'selecionar tudo, cancelar / limpar seleção'],
+  ['<kbd>L</kbd>, <kbd>F</kbd>, <kbd>+</kbd> <kbd>-</kbd> <kbd>0</kbd>', 'modo ligar, ajustar à janela, zoom'],
+  ['<kbd>Tab</kbd>, <kbd>Enter</kbd>', 'navegar entre nós e selecionar (ou ligar, no modo ligar)'],
+];
+const shortcutRows = SHORTCUTS.map(([k, d])=>'<tr><td>'+k+'</td><td>'+d+'</td></tr>').join('');
+$('shortcutsBody').innerHTML = shortcutRows;
+
+// ----- unsaved work: indicator, leave warning, confirmations -----
+function hasUnsavedWork(){ return !currentSlug && (state.nodes.length > 0 || state.cards.length > 0); }
+function confirmDiscardUnsaved(){
+  return !hasUnsavedWork() || confirm('Tens trabalho por guardar. Se continuares, perdes esse trabalho (usa "Guardar como…" antes se o quiseres manter). Continuar?');
+}
+function updateSaveIndicator(){
+  const el = $('saveIndicator');
+  if(hasUnsavedWork()){ el.textContent = '● Por guardar — carrega em Guardar'; el.className = 'save-indicator unsaved'; }
+  else if(currentSlug){ el.textContent = '✓ Guardado automaticamente'; el.className = 'save-indicator saved'; }
+  else { el.textContent = ''; el.className = 'save-indicator'; }
+}
+window.addEventListener('beforeunload', (e)=>{ if(hasUnsavedWork()){ e.preventDefault(); e.returnValue = ''; } });
+
+// ----- help dialog -----
+const HELP_HTML = `
+<h3>Começar em 5 minutos</h3>
+<ol>
+  <li>Carrega em <b>Exemplo: Tic Tac Toe</b> para veres um projeto completo (ou faz o <b>Tour</b>).</li>
+  <li><b>1 · Fluxo</b>: arrasta os nós, liga-os e experimenta <b>Organizar</b>.</li>
+  <li><b>2 · Cartões de Lógica</b>: lê os cartões e cria um com <b>+ Cartão</b>.</li>
+  <li><b>3 · Gerar &amp; Rever</b>: <b>Copiar prompt para o teu AI</b>, cola o HTML que ele devolver na caixa, descarrega e joga.</li>
+  <li>Quando o protótipo se portar bem: marca <b>Revi o código</b> e faz <b>Commit às regras</b>. Usa <b>Guardar</b> para não perderes o trabalho.</li>
+</ol>
+
+<h3>Os quatro tipos BGE</h3>
+<table>
+  <tr><th>Tipo</th><th>Para quê</th><th>Exemplo (Tic Tac Toe)</th></tr>
+  <tr><td><b>DATA</b></td><td>Estado e condições: o que existe ou é verdade (cláusula "Dado").</td><td>Tabuleiro 3x3, Jogador atual</td></tr>
+  <tr><td><b>FLOW</b></td><td>Sequência, turnos e fases: quando algo pode acontecer.</td><td>Início de jogo, Turno do jogador</td></tr>
+  <tr><td><b>ACTION</b></td><td>Jogadas do jogador ou do sistema: o gatilho (cláusula "Quando").</td><td>Jogador marca uma casa livre</td></tr>
+  <tr><td><b>SCORE</b></td><td>Efeitos e pontuação: a consequência (cláusula "Então").</td><td>Verificar 3 em linha</td></tr>
+</table>
+
+<h3>Escrever um bom cartão</h3>
+<ul>
+  <li><b>Uma regra por cartão.</b> Se precisas de "e também…", divide em dois cartões.</li>
+  <li><b>Sê concreto:</b> números, nomes e estados do jogo ("as 9 casas estão preenchidas", não "o tabuleiro está quase cheio").</li>
+  <li><b>Dado</b> descreve a situação, <b>Quando</b> um único acontecimento, <b>Então</b> o resultado que se consegue observar.</li>
+  <li>Escolhe o tipo pelo efeito principal: condição → DATA, ordem/turnos → FLOW, jogada → ACTION, pontos/vitória → SCORE.</li>
+  <li>Não te esqueças dos casos de erro (jogada inválida), dos empates e do fim de jogo.</li>
+</ul>
+
+<h3>Atalhos e gestos</h3>
+<table>${shortcutRows}</table>
+
+<h3>Problemas comuns</h3>
+<details><summary>O meu trabalho desapareceu</summary><p>Os projetos ficam no browser onde os guardaste. Trabalho que nunca guardaste não é gravado: usa <b>Guardar</b> (o indicador junto aos botões diz "Por guardar" ou "Guardado"). Modo anónimo, outro browser ou dispositivo e limpar os dados do site apagam-nos. Faz cópias de segurança com <b>Exportar</b>.</p></details>
+<details><summary>"Gerar com API" dá erro</summary><p>Só funciona dentro do preview de artifacts do Claude.ai. Fora dele usa <b>Copiar prompt para o teu AI</b> e cola o resultado na caixa de código.</p></details>
+<details><summary>O AI devolveu o código com texto à volta, ou cortado</summary><p>Cola na mesma: o markdown e o texto antes de &lt;!DOCTYPE&gt; e depois de &lt;/html&gt; são removidos. Se o código vier cortado a meio, pede ao AI para continuar ou usa um modelo com respostas mais longas.</p></details>
+<details><summary>O protótipo não cumpre uma regra</summary><p>Torna o cartão mais concreto e gera de novo. Procura no código os comentários <code>// ASSUNÇÃO</code>: mostram onde o AI teve de adivinhar.</p></details>
+<details><summary>Não consigo ligar dois nós</summary><p>Ligações duplicadas ou de um nó a si próprio são recusadas; a razão aparece por cima do canvas.</p></details>
+<details><summary>"Importar" falha</summary><p>O ficheiro tem de ser .json com <code>nodes</code>, <code>edges</code> e <code>cards</code>, ids do tipo <code>n1</code> / <code>c1</code>, e ligações só entre nós que existem. A mensagem junto aos botões diz o que está mal.</p></details>
+<details><summary>"Organizar" deixou ligações por trás de nós</summary><p>Acontece em grafos densos. Arrasta os nós para ajustar, ou <kbd>Ctrl</kbd>+<kbd>Z</kbd> para anular.</p></details>
+<details><summary>Apaguei um cartão sem querer</summary><p>Os cartões não têm "anular". Se tinhas uma cópia exportada, importa-a como novo projeto.</p></details>
+
+<div class="help-links">
+  <a class="btn" href="${GUIDE_URL}" target="_blank" rel="noopener">Guia completo (GitHub)</a>
+  <button class="btn primary" id="helpTour">▶ Fazer o tour</button>
+</div>`;
+$('helpBody').innerHTML = HELP_HTML;
+function openHelp(){ if(!$('helpDialog').open) $('helpDialog').showModal(); }
+$('helpBtn').addEventListener('click', openHelp);
+$('helpClose').addEventListener('click', ()=>$('helpDialog').close());
+$('helpDialog').addEventListener('click', (e)=>{ if(e.target === $('helpDialog')) $('helpDialog').close(); });
+$('helpTour').addEventListener('click', ()=>{ $('helpDialog').close(); startTour(); });
+
+// ----- first-visit banner -----
+async function initOnboarding(){
+  let seen = null;
+  try{ const r = await storageAdapter.get(ONBOARD_KEY, false); seen = r && r.value; }catch(e){}
+  if(!seen) $('onboardBanner').hidden = false;
+}
+async function markOnboarded(v){
+  $('onboardBanner').hidden = true;
+  try{ await storageAdapter.set(ONBOARD_KEY, v, false); }catch(e){}
+}
+$('onboardTour').addEventListener('click', ()=>startTour());
+$('onboardHelp').addEventListener('click', openHelp);
+$('onboardClose').addEventListener('click', ()=>markOnboarded('dismissed'));
+
+// ----- guided tour -----
+const gotoTab = name => document.querySelector('.tab-btn[data-tab="'+name+'"]').click();
+const nextFrame = () => new Promise(r=>setTimeout(r, 40));   // timer, not rAF: rAF stalls while the page is not being painted
+let tourWillLoad = false;   // the welcome step will load the example, so node-dependent steps are not skipped
+const tourEmpty = () => state.nodes.length === 0 && !tourWillLoad;
+
+const TOUR = [
+  { title: 'Bem-vindo ao Rule Forge', tab: 'flow', target: null, offerExample: true,
+    body: '<p>Transforma as regras de um jogo num protótipo jogável em <b>3 passos</b>:</p>'+
+          '<ol><li><b>Fluxo</b>: desenha como o jogo funciona.</li><li><b>Cartões de Lógica</b>: escreve as regras em Gherkin (Dado / Quando / Então).</li><li><b>Gerar &amp; Rever</b>: pede a um AI o protótipo, revê e guarda a versão.</li></ol>'+
+          '<p>O tour demora cerca de 3 minutos. Podes sair quando quiseres com <kbd>Esc</kbd> e usar as setas <kbd>←</kbd> <kbd>→</kbd> para navegar.</p>' },
+  { title: 'O teu jogo', target: '.game-name',
+    body: '<p>Dá um nome ao jogo. O nome vai para o prompt do AI e para o nome dos ficheiros exportados.</p>' },
+  { title: 'Guardar e partilhar', target: '.project-bar',
+    body: '<p>Os projetos ficam guardados <b>neste browser</b>. Trabalho novo só fica gravado depois de carregares em <b>Guardar</b> (pede um nome à primeira vez; depois guarda sozinho). O indicador ao lado diz se está <i>Por guardar</i> ou <i>Guardado</i>.</p>'+
+          '<p><b>Exportar</b> e <b>Importar</b> passam o projeto para .json, para cópias de segurança e para partilhar.</p>' },
+  { title: 'Três separadores, três fases', target: 'nav.tabs',
+    body: '<p>Trabalha da esquerda para a direita, mas podes voltar atrás sempre que quiseres: mudar um cartão ou o fluxo não estraga nada, só tens de gerar o protótipo de novo.</p>' },
+  { title: '1 · Fluxo: a barra de ferramentas', tab: 'flow', target: '.flow-toolbar',
+    body: '<p>Escolhe o <b>tipo</b> do nó e carrega em <b>+ Nó</b>. <b>Ligar nós</b> liga dois nós com cliques, <b>↶ ↷</b> anulam e refazem, <b>Organizar</b> arruma tudo e <b>Grelha</b> alinha os nós ao arrastar.</p>' },
+  { title: 'Os quatro tipos de nó (BGE)', target: '.legend',
+    body: '<ul><li><b>DATA</b>: estado e condições (o que existe).</li><li><b>FLOW</b>: sequência, turnos e fases.</li><li><b>ACTION</b>: jogadas do jogador.</li><li><b>SCORE</b>: efeitos e pontuação.</li></ul>'+
+          '<p>Regra prática: uma regra começa numa condição <b>DATA</b>, é despoletada por uma <b>ACTION</b>, pode depender de um <b>FLOW</b> e acaba num efeito <b>SCORE</b>.</p>' },
+  { title: 'O canvas', target: '#canvas',
+    body: '<p>Arrasta o <b>fundo</b> para mover a vista, <kbd>Ctrl</kbd> + roda para fazer zoom, e usa o minimapa no canto para saltar para outra zona.</p>'+
+          '<p class="try"><b>Experimenta:</b> faz duplo clique num sítio vazio para criar um nó; duplo clique num nó renomeia-o.</p>' },
+  { title: 'Ligar nós', target: '#canvas', prep: ()=>{ canvas.classList.add('show-handles'); return ()=>canvas.classList.remove('show-handles'); },
+    body: '<p>Arrasta a <b>bolinha</b> que aparece à direita de um nó até outro nó: fica <b style="color:#7be0b5">verde</b> se a ligação é válida e <b style="color:#e08b7b">vermelha</b> se for recusada. Largar no vazio cria um nó novo já ligado.</p>'+
+          '<p>Clica numa ligação para a selecionar e carrega em <kbd>Del</kbd> para a apagar.</p>' },
+  { title: 'Editar um nó', target: '#inspector', skipIf: tourEmpty,
+    prep: ()=>{ if(state.nodes.length) setSelection([state.nodes[0].id]); return ()=>setSelection([]); },
+    body: '<p>Com um nó selecionado, muda o <b>nome</b> e o <b>tipo</b> aqui. Com <kbd>Shift</kbd> + clique (ou arrastando uma caixa no fundo) selecionas vários e movê-los ou apagá-los de uma vez.</p>' },
+  { title: 'Organizar e anular', target: '#layoutBtn',
+    body: '<p><b>Organizar</b> coloca os nós sem ligações por trás de outros e com o fluxo de cima para baixo. Não gostaste? <kbd>Ctrl</kbd>+<kbd>Z</kbd> anula (até 100 passos, só no fluxo, não nos cartões).</p>' },
+  { title: 'Todos os atalhos', target: '#shortcuts',
+    prep: ()=>{ const d = $('shortcuts'); const was = d.open; d.open = true; return ()=>{ d.open = was; }; },
+    body: '<p>A lista completa de atalhos e gestos está aqui, por baixo do canvas, e também na <b>Ajuda</b>.</p>' },
+  { title: '2 · Cartões de Lógica', tab: 'cards', target: '.cards-toolbar',
+    body: '<p>Cada regra do jogo é um <b>cartão</b>: um título, um tipo BGE e três frases: <b>Dado</b> (a situação), <b>Quando</b> (o que acontece) e <b>Então</b> (o resultado).</p>' },
+  { title: 'Escrever um cartão', target: '#cardForm',
+    prep: ()=>{
+      const wasOpen = $('cardForm').classList.contains('open');
+      $('newCardBtn').click();
+      return ()=>{
+        const empty = ['cf-title','cf-given','cf-when','cf-then'].every(id=>!$(id).value.trim());
+        if(!wasOpen && empty) $('cancelCardBtn').click();
+      };
+    },
+    body: '<p>Os quatro campos são obrigatórios. Um bom cartão tem <b>uma regra só</b>, frases <b>concretas</b> (números, nomes e estados do jogo) e trata também os casos de erro e o fim de jogo.</p>'+
+          '<p>Podes editar ou apagar cartões depois. Apagar não tem anular.</p>' },
+  { title: '3 · Gerar o protótipo', tab: 'gen', target: '.gen-actions',
+    body: '<p><b>Copiar prompt para o teu AI</b> junta o fluxo e os cartões num prompt bem estruturado. Cola-o no OpenCode, ChatGPT, Gemini ou Claude (precisa de pelo menos um cartão).</p>'+
+          '<p>O botão da API só funciona dentro do Claude.ai.</p>' },
+  { title: 'Rever e testar', target: '.code-panel',
+    body: '<p>Cola aqui o HTML que o AI devolveu (o markdown e o texto à volta são removidos). Carrega em <b>Descarregar .html</b> e abre o ficheiro no browser para <b>jogar</b> o protótipo e ver se as regras se comportam como esperas.</p>'+
+          '<p>Se algo estiver errado, melhora os cartões e gera de novo.</p>' },
+  { title: 'Guardar a versão', target: '.review-bar',
+    body: '<p>Quando o protótipo estiver bem, marca <b>Revi o código gerado</b> e faz <b>Commit às regras</b>. A versão fica no <b>Histórico de commits</b> deste projeto, e podes voltar a carregá-la ou descarregá-la mais tarde.</p>' },
+  { title: 'Pronto!', target: '#helpBtn',
+    body: '<p>Sempre que precisares de consultar alguma coisa, a <b>Ajuda</b> tem conceitos, atalhos e resolução de problemas, e o guia completo está no repositório. Podes repetir este tour em <b>▶ Tour</b>.</p>' },
+];
+
+let tourActive = false, tourIdx = -1, tourCleanup = null, tourRaf = 0, tourStartTab = "flow";
+const tourSteps = () => TOUR.filter(s=>!(s.skipIf && s.skipIf()));
+const tourTarget = (s)=>{
+  if(!s.target) return null;
+  const el = typeof s.target === 'string' ? document.querySelector(s.target) : s.target();
+  return el && el.getClientRects().length ? el : null;
+};
+
+async function startTour(){
+  if($('helpDialog').open) $('helpDialog').close();
+  if(tourActive) return;
+  tourStartTab = document.querySelector(".tab-btn.active").dataset.tab;
+  tourActive = true;
+  document.body.classList.add('tour-open');
+  $('tour').hidden = false;
+  markOnboarded('started');
+  await tourGo(0, 1);
+}
+
+async function tourGo(i, dir){
+  if(tourCleanup){ tourCleanup(); tourCleanup = null; }
+  while(i >= 0 && i < TOUR.length && TOUR[i].skipIf && TOUR[i].skipIf()) i += dir;
+  if(i < 0) i = 0;
+  if(i >= TOUR.length){ endTour(true); return; }
+  tourIdx = i;
+  const s = TOUR[i];
+  if(s.tab) gotoTab(s.tab);
+  if(s.prep) tourCleanup = s.prep() || null;
+  await nextFrame();
+
+  const offer = !!s.offerExample && state.nodes.length === 0 && state.cards.length === 0;
+  tourWillLoad = offer && $('tourExample').checked;
+  const list = tourSteps(), n = list.indexOf(s);
+  $('tourStep').textContent = 'Passo '+(n+1)+' de '+list.length;
+  $('tourTitle').textContent = s.title;
+  $('tourBody').innerHTML = s.body;
+  $('tourDots').innerHTML = list.map((_, k)=>'<i class="'+(k === n ? 'on' : '')+'"></i>').join('');
+  $('tourPrev').disabled = n === 0;
+  $('tourNext').textContent = n === list.length-1 ? 'Concluir' : 'Seguinte';
+  $('tourOpt').hidden = !offer;
+
+  const el = tourTarget(s);
+  if(el){
+    const mobile = window.innerWidth <= 640;
+    el.scrollIntoView({block: mobile ? 'start' : 'center', inline: 'nearest'});
+    if(mobile) window.scrollBy(0, -70);
+  }
+  tourReposition();
+  $('tourNext').focus({preventScroll: true});
+}
+
+function tourReposition(){
+  if(!tourActive) return;
+  const s = TOUR[tourIdx]; if(!s) return;
+  const pop = $('tourPop'), spot = $('tourSpot');
+  const vw = window.innerWidth, vh = window.innerHeight, m = 12, pad = 6;
+  const mobile = vw <= 640;
+  const el = tourTarget(s);
+  if(!el){
+    spot.style.left = (vw/2)+'px'; spot.style.top = (vh/2)+'px'; spot.style.width = '0px'; spot.style.height = '0px';
+    if(!mobile){
+      pop.style.left = Math.max(m, (vw-pop.offsetWidth)/2)+'px';
+      pop.style.top = Math.max(m, (vh-pop.offsetHeight)/2)+'px';
+    }
+    return;
+  }
+  const r = el.getBoundingClientRect();
+  spot.style.left = (r.left-pad)+'px'; spot.style.top = (r.top-pad)+'px';
+  spot.style.width = (r.width+2*pad)+'px'; spot.style.height = (r.height+2*pad)+'px';
+  if(mobile) return;
+  const pw = pop.offsetWidth, ph = pop.offsetHeight, gap = pad+10;
+  const clampX = x => Math.min(Math.max(m, x), vw-pw-m);
+  const clampY = y => Math.min(Math.max(m, y), vh-ph-m);
+  const tries = [
+    {left: clampX(r.left), top: r.bottom+gap},
+    {left: clampX(r.left), top: r.top-gap-ph},
+    {left: r.right+gap, top: clampY(r.top)},
+    {left: r.left-gap-pw, top: clampY(r.top)},
+  ];
+  const fits = t => t.left >= m && t.left+pw <= vw-m && t.top >= m && t.top+ph <= vh-m;
+  const pos = tries.find(fits) || {left: clampX(r.left), top: clampY(r.bottom-ph-16)};
+  pop.style.left = pos.left+'px'; pop.style.top = pos.top+'px';
+}
+function scheduleReposition(){
+  if(!tourActive || tourRaf) return;
+  tourRaf = setTimeout(()=>{ tourRaf = 0; tourReposition(); }, 16);
+}
+window.addEventListener('resize', scheduleReposition);
+window.addEventListener('scroll', scheduleReposition, true);
+
+function endTour(completed){
+  if(!tourActive) return;
+  tourActive = false;
+  if(tourCleanup){ tourCleanup(); tourCleanup = null; }
+  $('tour').hidden = true;
+  document.body.classList.remove('tour-open');
+  markOnboarded(completed ? 'done' : 'skipped');
+  if(completed) $('projectStatus').textContent = 'Tour concluído. Podes repeti-lo em "Tour" e consultar a "Ajuda" quando precisares.';
+  gotoTab(tourStartTab);
+  $('tourBtn').focus({preventScroll: true});
+}
+
+async function tourNext(){
+  const s = TOUR[tourIdx];
+  if(s.offerExample && !$('tourOpt').hidden && $('tourExample').checked){
+    const idx = await getIndex();
+    if(idx.some(p=>p.slug === EXAMPLE_SLUG)) await loadProject(EXAMPLE_SLUG, true);
+    else await loadTicTacToeExample(true);
+  }
+  tourWillLoad = false;
+  await tourGo(tourIdx+1, 1);
+}
+$('tourExample').addEventListener('change', ()=>{ if(tourActive) tourGo(tourIdx, 1); });
+$('tourNext').addEventListener('click', tourNext);
+$('tourPrev').addEventListener('click', ()=>tourGo(tourIdx-1, -1));
+$('tourSkip').addEventListener('click', ()=>endTour(false));
+$('tourBtn').addEventListener('click', startTour);
+
+document.addEventListener('keydown', (e)=>{
+  if(!tourActive) return;
+  const t = e.target;
+  if(t.closest && t.closest('input:not(#tourExample), textarea, select, [contenteditable]')) return;
+  if(e.key === 'Escape'){ e.preventDefault(); e.stopImmediatePropagation(); endTour(false); }
+  else if(e.key === 'ArrowRight'){ e.preventDefault(); e.stopImmediatePropagation(); tourNext(); }
+  else if(e.key === 'ArrowLeft'){ e.preventDefault(); e.stopImmediatePropagation(); if(tourIdx > 0) tourGo(tourIdx-1, -1); }
+}, true);
+
 // ---------- init ----------
-loadState().then(()=>{ renderSummary(); renderCommits(); });
+loadState().then(()=>{ renderSummary(); renderCommits(); initOnboarding(); });
 </script>
 </body>
 </html>

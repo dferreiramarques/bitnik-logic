@@ -1,0 +1,325 @@
+# Guia do Rule Forge
+
+Guia de consulta para usar o Rule Forge sem ajuda de ninguém. Se preferires aprender a usar a ferramenta, abre-a e carrega em **▶ Tour** (cerca de 3 minutos); dentro da app, **? Ajuda** tem um resumo deste guia.
+
+**Índice:** [1. O que é](#1-o-que-é) · [2. Primeiros 10 minutos](#2-primeiros-10-minutos-exercício-guiado) · [3. Conceitos](#3-conceitos) · [4. Referência ecrã a ecrã](#4-referência-ecrã-a-ecrã) · [5. Atalhos](#5-atalhos-e-gestos) · [6. Escrever bons cartões](#6-escrever-bons-cartões) · [7. Trabalhar com um AI](#7-trabalhar-com-um-ai) · [8. Guardar e partilhar](#8-guardar-e-partilhar) · [9. Problemas comuns](#9-problemas-comuns) · [10. Limites](#10-limites-conhecidos) · [11. Glossário](#11-glossário)
+
+---
+
+## 1. O que é
+
+O Rule Forge ajuda a passar de "tenho uma ideia de regras" para "tenho um protótipo jogável que as cumpre":
+
+1. **Fluxo**: desenhas como o jogo funciona, com nós ligados entre si.
+2. **Cartões de Lógica**: escreves cada regra numa frase estruturada (Dado / Quando / Então).
+3. **Gerar & Rever**: pedes a um AI um protótipo HTML que implemente essas regras, testas, corriges as regras se for preciso, e guardas a versão.
+
+Corre no browser, num só ficheiro, sem instalar nada e sem conta. Os dados ficam no teu browser (ver [secção 8](#8-guardar-e-partilhar)).
+
+**Para quem:** designers de jogos que querem validar regras depressa, sem escrever código.
+
+---
+
+## 2. Primeiros 10 minutos (exercício guiado)
+
+Vais carregar um projeto pronto, alterá-lo e gerar um protótipo.
+
+**Passo 1: abrir um projeto de exemplo.** Carrega em **Exemplo: Tic Tac Toe**. Aparece um fluxo de 9 nós e 7 cartões do jogo do galo.
+
+**Passo 2: explorar o fluxo.** No separador **1 · Fluxo** arrasta um nó, faz zoom com `Ctrl` + roda do rato, carrega em **Organizar** e depois `Ctrl`+`Z` para voltar atrás. Repara nas cores: cada tipo de nó tem a sua (ver [secção 3](#3-conceitos)).
+
+**Passo 3: acrescentar uma regra ao fluxo.** Quer-se registar quem ganha num placar:
+1. Escolhe o tipo **SCORE** e carrega em **+ Nó**; escreve o nome `Atualizar placar` e `Enter`.
+2. Arrasta a bolinha (à direita) do nó `Verificar 3 em linha` até ao novo nó.
+
+**Passo 4: escrever o cartão dessa regra.** Vai a **2 · Cartões de Lógica**, carrega em **+ Cartão** e preenche:
+
+| Campo | Texto |
+|---|---|
+| Título | Atualizar placar |
+| Tipo | SCORE |
+| Dado que… | um jogador venceu com 3 em linha |
+| Quando… | o jogo termina |
+| Então… | o placar desse jogador aumenta em 1 e o placar fica visível no ecrã |
+
+**Passo 5: gerar o protótipo.** Em **3 · Gerar & Rever** carrega em **Copiar prompt para o teu AI**, cola o prompt no AI que preferires (ver [secção 7](#7-trabalhar-com-um-ai)) e pede-lhe que responda com o ficheiro HTML.
+
+**Passo 6: testar.** Cola o HTML na caixa grande, carrega em **Descarregar .html** e abre o ficheiro no browser. Joga uma partida até ao fim e confirma que o placar sobe.
+
+**Passo 7: guardar a versão.** Se estiver bem, marca **Revi o código gerado** e carrega em **Commit às regras**. A versão aparece no **Histórico de commits**. Se não estiver bem, volta ao passo 4 e torna o cartão mais concreto.
+
+> **Antes de sair:** o exemplo fica guardado no browser, mas qualquer projeto novo só fica gravado depois de carregares em **Guardar**.
+
+---
+
+## 3. Conceitos
+
+### Os quatro tipos de nó (taxonomia BGE)
+
+Todos os nós e cartões têm um destes tipos:
+
+| Tipo | Cor | O que representa | Cláusula habitual do cartão | Exemplo (Tic Tac Toe) |
+|---|---|---|---|---|
+| **DATA** | azul | Estado e condições: o que existe ou é verdade | Dado | Tabuleiro 3x3, Jogador atual |
+| **FLOW** | verde | Sequência, turnos e fases: quando algo pode acontecer | (condiciona o Quando) | Início de jogo, Turno do jogador |
+| **ACTION** | laranja | Jogadas do jogador ou do sistema: o que se faz | Quando | Jogador marca uma casa livre |
+| **SCORE** | dourado | Efeitos e pontuação: a consequência | Então | Verificar 3 em linha |
+
+Uma regra típica começa numa condição **DATA**, é despoletada por uma **ACTION**, pode depender de um **FLOW** e acaba num efeito **SCORE**. Se uma regra não cabe em nenhum tipo, provavelmente devia ser dividida em mais do que um cartão. Há uma versão bilingue com mais detalhe no [README](../README.md#taxonomia-bge).
+
+### Fluxo vs. cartões
+
+- O **fluxo** mostra a *estrutura*: que peças existem e em que ordem se ligam.
+- Os **cartões** dizem a *regra exata*: o que acontece, com números e condições.
+
+O AI recebe os dois. Um fluxo sem cartões dá um protótipo vazio; cartões sem fluxo dão um protótipo sem ordem. O ideal é os nós do fluxo e os cartões corresponderem-se.
+
+### Cartão Gherkin
+
+Uma regra em três frases:
+
+- **Dado que** a situação de partida
+- **Quando** o que acontece (um só acontecimento)
+- **Então** o resultado observável
+
+### Commit
+
+No Rule Forge, um *commit* é uma **versão do protótipo que revistaste e aceitaste**, guardada no projeto junto com o número de nós e cartões dessa altura. Não tem relação com o Git.
+
+### Projeto
+
+Um jogo com o seu fluxo, cartões e commits, guardado com um nome. Podes ter vários.
+
+---
+
+## 4. Referência ecrã a ecrã
+
+### 4.1 Cabeçalho e projetos
+
+| Elemento | O que faz |
+|---|---|
+| **▶ Tour** | Abre o tour guiado. |
+| **? Ajuda** | Abre a ajuda de consulta (conceitos, atalhos, problemas comuns). |
+| **Jogo** | Nome do jogo. Vai para o prompt e para os nomes dos ficheiros. |
+| **Projetos guardados** + **Carregar** | Abre o projeto escolhido. Se tens trabalho por guardar, pede confirmação antes de o substituir. |
+| **Guardar como…** | Guarda o trabalho atual como projeto novo, com o nome que escolheres. |
+| **Guardar** | Na primeira vez pede um nome (como "Guardar como…"). Depois disso, o projeto guarda-se **automaticamente** a cada alteração. |
+| **Apagar** | Apaga o projeto escolhido no seletor (ou o atual), depois de pedir confirmação. Não se pode desfazer. |
+| **Exemplo: Tic Tac Toe** | Carrega o exemplo. Se já tens o exemplo guardado com alterações tuas, avisa antes de o substituir pelo original. |
+| **Importar…** | Cria um projeto novo a partir de um ficheiro `.json` (ver [secção 8](#8-guardar-e-partilhar)). |
+| **Exportar** | Descarrega o fluxo e os cartões do projeto em `.json`. |
+| Indicador | **● Por guardar** (a amarelo): tens trabalho que ainda não está gravado. **✓ Guardado automaticamente**: está tudo gravado. |
+
+Se fechares a página com trabalho por guardar, o browser avisa.
+
+### 4.2 Separador 1 · Fluxo
+
+**Barra de ferramentas**
+
+| Botão | O que faz |
+|---|---|
+| Seletor de tipo + **+ Nó** | Cria um nó do tipo escolhido no centro da vista e pede o nome. |
+| **Ligar nós** (`L`) | Modo em que dois cliques (origem, depois destino) criam uma ligação. |
+| **↶ / ↷** | Anular / refazer (até 100 passos; só para nós e ligações). |
+| **Organizar** | Arruma os nós em grelha, com o fluxo de cima para baixo e sem ligações por trás de nós. Anula-se com `Ctrl`+`Z`. |
+| **Grelha** | Alinha os nós a uma grelha de 12 px ao arrastar. |
+| **Apagar nó** / **Apagar ligação** | Apagam a seleção (`Del` faz o mesmo). Apagar um nó apaga as suas ligações. |
+
+**Canvas**
+
+| Gesto | O que faz |
+|---|---|
+| Duplo clique no fundo | Cria um nó do tipo escolhido, onde clicaste. |
+| Duplo clique num nó (ou `F2`) | Renomeia. |
+| Arrastar um nó | Move-o (move todos os selecionados). |
+| Arrastar a bolinha à direita de um nó até outro nó | Cria uma ligação. O destino fica **verde** se é válido e **vermelho** se é recusado (ligação repetida ou de um nó a si próprio). Largar no vazio cria um nó novo já ligado. |
+| Clicar numa ligação | Seleciona-a (fica realçada); `Del` apaga-a. |
+| Arrastar o fundo | Move a vista. |
+| `Ctrl` + roda do rato, ou botões **− / + / ⤢** | Zoom; ⤢ ajusta tudo à janela (`F`). |
+| Minimapa (canto inferior direito) | Clicar ou arrastar leva-te a outra zona. |
+| `Shift` + clique / `Shift` + arrastar no fundo | Seleção múltipla / seleção por caixa. |
+
+**Painel de detalhe.** Com **um** nó selecionado aparece uma barra por cima do canvas com o **nome** e o **tipo** dele, e quantas ligações entram e saem.
+
+### 4.3 Separador 2 · Cartões de Lógica
+
+- **+ Cartão** abre o formulário: **Título**, **Tipo**, **Dado que…**, **Quando…**, **Então…**. O título e as três frases são obrigatórios (o tipo vem sempre preenchido).
+- **Guardar cartão** grava; **Cancelar** fecha sem gravar.
+- Cada cartão tem **Editar** e **Apagar**. Apagar não tem anular.
+- A cor da etiqueta do cartão segue o tipo (mesmas cores do fluxo).
+
+### 4.4 Separador 3 · Gerar & Rever
+
+| Elemento | O que faz |
+|---|---|
+| Resumo | Quantos nós, ligações e cartões tem o projeto. |
+| **Copiar prompt para o teu AI** | Junta o fluxo e os cartões num prompt e copia-o. Precisa de pelo menos um cartão. |
+| **Ver prompt** | Mostra o prompt (também serve para o copiar à mão, se o botão não conseguir). |
+| **Gerar com API (só no Claude.ai)** | Pede diretamente à API da Anthropic. Só funciona dentro do preview de artifacts do Claude.ai. |
+| Caixa de código | Onde colas (ou vês) o HTML. Ao sair da caixa, o markdown e o texto à volta do HTML são removidos. |
+| **Revi o código gerado** | Tem de estar marcado para poder fazer commit. |
+| **Descarregar .html** | Descarrega o que estiver na caixa, para abrires no browser e jogares. |
+| **Commit às regras** | Guarda a versão no histórico do projeto (precisa de código e da caixa "Revi" marcada). |
+| Histórico de commits | Lista as versões. **Ver código** coloca o código dessa versão na caixa (sem alterar o commit); **Descarregar** descarrega-o. |
+
+---
+
+## 5. Atalhos e gestos
+
+Só funcionam no separador **Fluxo** e quando não estás a escrever num campo de texto.
+
+| Atalho | Ação |
+|---|---|
+| `Duplo clique` no fundo | Cria um nó |
+| `Duplo clique` / `F2` num nó | Renomeia |
+| Arrastar a bolinha do nó | Liga a outro nó |
+| Arrastar o fundo | Move a vista |
+| `Ctrl` + roda do rato | Zoom |
+| `Shift` + clique / arrastar no fundo | Seleção múltipla / por caixa |
+| `Setas` (`Shift` = passo maior) | Movem a seleção |
+| `Del` | Apaga a seleção |
+| `Ctrl`+`Z` / `Ctrl`+`Y` (ou `Ctrl`+`Shift`+`Z`) | Anular / refazer |
+| `Ctrl`+`A` | Seleciona todos os nós |
+| `Esc` | Cancela o que estás a fazer / limpa a seleção |
+| `L` | Liga/desliga o modo "Ligar nós" |
+| `F` | Ajusta à janela |
+| `+` `-` `0` | Zoom in / out / 100% |
+| `Tab` / `Enter` | Navega entre nós / seleciona (ou liga, no modo ligar) |
+
+No tour: `←` e `→` navegam e `Esc` sai.
+
+---
+
+## 6. Escrever bons cartões
+
+A qualidade do protótipo depende quase toda dos cartões.
+
+**Checklist**
+
+- [ ] **Uma regra por cartão.** Se precisas de "e também…", são dois cartões.
+- [ ] **Concreto.** Números, nomes e estados do jogo.
+- [ ] **Um só "Quando".** Um acontecimento por cartão.
+- [ ] **"Então" observável.** Algo que se veja ou meça no ecrã.
+- [ ] **Tipo certo**, pelo efeito principal (condição → DATA, ordem → FLOW, jogada → ACTION, pontos → SCORE).
+- [ ] **Casos de erro e de fim** também têm cartão (jogada inválida, empate, fim de jogo).
+
+**Exemplos**
+
+| Fraco | Melhor |
+|---|---|
+| Dado que o tabuleiro está quase cheio | Dado que as 9 casas estão preenchidas e ninguém venceu |
+| Quando o jogador joga bem | Quando o jogador tem 3 símbolos iguais numa linha, coluna ou diagonal |
+| Então acontece a pontuação | Então o placar desse jogador aumenta em 1 |
+| Quando o jogador aposta e depois se revela | *(dois cartões: um para apostar, outro para revelar)* |
+
+**Erros frequentes**
+
+- Cartões que descrevem *interface* ("aparece um botão verde") em vez de regras: o AI gera um protótipo bonito e sem regras.
+- Regras que só existem na tua cabeça: o AI não as pode adivinhar. Se o protótipo fizer algo estranho, quase sempre faltou um cartão.
+- Contradições entre cartões (dois cartões que dão resultados diferentes para a mesma situação).
+
+---
+
+## 7. Trabalhar com um AI
+
+O Rule Forge não gera o protótipo sozinho: ajuda-te a pedi-lo bem a um AI à tua escolha (OpenCode, ChatGPT, Gemini, Claude…).
+
+**O que o prompt contém.** Um papel, o objetivo, as definições dos quatro tipos BGE, o nome do jogo, os nós e as ligações (com nomes, não só ids), todos os cartões, os requisitos técnicos e o formato de saída. Vê-lo em **Ver prompt**.
+
+**Como usar**
+
+1. Confirma que os cartões estão como queres e carrega em **Copiar prompt para o teu AI**.
+2. Cola o prompt numa conversa nova do AI.
+3. O prompt pede um **ficheiro HTML** (um *artifact* ou ficheiro, se o AI os tiver; senão, um bloco de código). Copia o código.
+4. Cola-o na caixa de código do Rule Forge, descarrega, abre e joga.
+
+**Como rever o protótipo**
+
+1. Joga o cenário de **cada cartão**, um a um, e vê se o resultado é o do "Então".
+2. Procura no código os comentários `// ASSUNÇÃO:`. Cada um marca uma dúvida que o AI resolveu sozinho; se a resolução não te serve, escreve um cartão que a defina.
+3. Confirma que os comentários do código dizem a que nó/cartão corresponde cada bloco (`// ACTION c2: …`), para saberes onde mexer.
+4. Só depois disso marca **Revi o código gerado** e faz commit.
+
+**Se o resultado não serve:** melhora os cartões (não o código) e gera de novo. Editar o código à mão na caixa é possível, mas essa alteração não volta aos cartões.
+
+---
+
+## 8. Guardar e partilhar
+
+**Onde ficam os dados.** No `localStorage` do browser onde trabalhas (ou na área persistente do Claude.ai, quando abres a ferramenta lá). Isto significa que:
+
+- não há conta, nem sincronização entre dispositivos;
+- outro browser, outro computador, o modo anónimo e a limpeza dos dados do site **não** veem (ou apagam) os teus projetos;
+- por isso, **exporta** os projetos importantes.
+
+**Trabalho por guardar.** Um projeto novo só é gravado depois de carregares em **Guardar** ou **Guardar como…**. O indicador junto aos botões mostra o estado.
+
+**Exportar / Importar.** **Exportar** descarrega `nome-do-jogo.json` com o fluxo e os cartões (o histórico de commits não vai no ficheiro). **Importar…** cria sempre um projeto **novo**, nunca sobrescreve um existente, e valida o ficheiro.
+
+Formato do ficheiro:
+
+```json
+{
+  "gameName": "Nome do jogo",
+  "nodes": [{ "id": "n1", "kind": "FLOW", "label": "Iniciar jogo", "x": 10, "y": 10 }],
+  "edges": [{ "from": "n1", "to": "n2" }],
+  "cards": [{ "id": "c1", "kind": "FLOW", "title": "Início do jogo",
+              "given": "que…", "when": "…", "then": "…" }]
+}
+```
+
+Regras: `kind` é `DATA`, `FLOW`, `ACTION` ou `SCORE`; os ids são `n` ou `c` seguidos de um número (`n1`, `c12`); cada ligação tem de ligar dois nós que existem; tamanho máximo de 1 MB.
+
+**Exemplos prontos:** [examples/capivaras.json](../examples/capivaras.json) é um modelo completo do jogo *Capivaras* (15 nós, 18 ligações, 19 cartões). Descarrega o ficheiro e importa-o.
+
+**Copiar para outro browser.** Exporta no browser de origem e importa no de destino.
+
+---
+
+## 9. Problemas comuns
+
+| Problema | O que fazer |
+|---|---|
+| **O meu trabalho desapareceu** | Trabalho que nunca guardaste não é gravado; usa **Guardar**. Modo anónimo, outro browser ou limpar dados do site apagam os projetos. Faz cópias com **Exportar**. |
+| **"Gerar com API" dá erro** | Só funciona no Claude.ai. Fora dele usa **Copiar prompt para o teu AI**. |
+| **O botão "Copiar prompt" não copia** | Alguns browsers bloqueiam a cópia automática. A caixa **Ver prompt** abre; seleciona e copia à mão. |
+| **O AI devolveu texto à volta do código** | Cola na mesma: o texto antes de `<!DOCTYPE` e depois de `</html>` e o markdown são removidos. |
+| **O código veio cortado a meio** | Pede ao AI "continua", ou usa um modelo com respostas mais longas. Projetos com muitos cartões geram respostas longas. |
+| **O protótipo não cumpre uma regra** | Torna o cartão mais concreto (números, estados) e gera de novo. Procura os `// ASSUNÇÃO`. |
+| **O protótipo tem regras que eu não escrevi** | O AI preencheu lacunas. Adiciona cartões que as definam, ou que as proíbam. |
+| **Não consigo ligar dois nós** | Ligações repetidas e de um nó a si próprio são recusadas; a razão aparece por cima do canvas. |
+| **"Importar" falha** | A mensagem junto aos botões diz o problema (ver formato na [secção 8](#8-guardar-e-partilhar)). |
+| **"Organizar" deixou ligações por trás de nós** | Acontece em grafos densos. Arrasta os nós, ou `Ctrl`+`Z` para anular. |
+| **Apaguei um cartão sem querer** | Os cartões não têm "anular". Se tens uma exportação, importa-a como projeto novo. |
+| **O exemplo não volta ao original** | Carrega em **Exemplo: Tic Tac Toe** e confirma a substituição. |
+| **O tour ou a ajuda deixaram de aparecer** | Usa **▶ Tour** e **? Ajuda** no cabeçalho. O aviso de primeira visita só aparece uma vez por browser. |
+
+---
+
+## 10. Limites conhecidos
+
+- O botão da API só funciona no Claude.ai; fora dele usa "Copiar prompt".
+- Sem contas nem sincronização: os dados ficam no browser.
+- Anular/refazer cobre só nós e ligações, não os cartões.
+- Sem *pinch-to-zoom* no toque (há botões e `Ctrl` + roda); o minimapa fica escondido em ecrãs estreitos.
+- As ligações são retas e não têm rótulos. Em grafos muito densos (dezenas de nós), **Organizar** pode deixar ligações por trás de nós.
+- Não há testes automatizados no repositório; a ferramenta foi verificada manualmente no browser.
+
+Mais detalhes técnicos e a comparação com outras ferramentas: [BENCHMARK.md](BENCHMARK.md).
+
+---
+
+## 11. Glossário
+
+| Termo | Significado |
+|---|---|
+| **BGE** | Bitnik Game Engine. A taxonomia de quatro tipos (DATA, FLOW, ACTION, SCORE) usada para classificar a lógica de um jogo. |
+| **Nó** | Uma peça do fluxo (um estado, uma fase, uma jogada ou um efeito). |
+| **Ligação** | Uma seta de um nó para outro, a indicar que o segundo vem depois do primeiro. |
+| **Cartão** | Uma regra escrita em Dado / Quando / Então. |
+| **Gherkin** | O formato de escrita de regras "Dado / Quando / Então", vindo do teste de software. |
+| **Prompt** | O texto que se envia a um AI a pedir-lhe o protótipo. |
+| **Protótipo (dummy)** | Um jogo mínimo, sem arte, feito só para validar as regras. |
+| **Commit** | Uma versão do protótipo que revistaste e aceitaste, guardada no projeto. |
+| **Artifact** | Um ficheiro (aqui, HTML) que alguns AIs criam ao lado da conversa, em vez de o escreverem como texto. |
+| **Snap / grelha** | Alinhar os nós, ao arrastar, a uma grelha invisível. |

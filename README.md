@@ -6,7 +6,16 @@ Serve para transformar a lógica de um jogo em três passos:
 
 1. **Fluxo** — desenha a lógica do jogo como nós `DATA` / `FLOW` / `ACTION` / `SCORE` (o taxonomy BGE), ligados entre si num canvas.
 2. **Cartões de Lógica** — escreve as regras como cartões Gherkin (`Dado` / `Quando` / `Então`), cada um marcado com o tipo de nó a que corresponde.
-3. **Gerar & Rever** — usa a API da Anthropic (chamada diretamente do browser) para gerar um PWA dummy de ficheiro único que implementa as regras descritas, permite rever/editar o código antes de aceitar, e regista cada versão aceite num histórico de "commits".
+3. **Gerar & Rever** — monta um prompt estruturado para o teu AI (OpenCode, ChatGPT, Gemini, Claude…) gerar um PWA dummy de ficheiro único que implementa as regras descritas; colas o HTML devolvido, revês, testas e registas cada versão aceite num histórico de "commits". (Dentro do Claude.ai também há geração direta pela API.)
+
+## Aprender a usar
+
+A ferramenta pode usar-se sem ajuda de ninguém:
+
+- **▶ Tour** (botão no cabeçalho, também oferecido na primeira visita): percurso guiado de cerca de 3 minutos pelos três separadores, com destaque nos elementos e, se quiseres, o exemplo Tic Tac Toe carregado para acompanhar.
+- **? Ajuda** (botão no cabeçalho): consulta rápida dentro da app, com começar em 5 minutos, os quatro tipos, como escrever um cartão, atalhos e problemas comuns.
+- **[docs/GUIA.md](docs/GUIA.md)**: guia de consulta completo, com um exercício guiado de 10 minutos, referência de cada ecrã e botão, checklist para escrever cartões, como trabalhar com um AI, formato dos ficheiros e resolução de problemas.
+- **[examples/capivaras.json](examples/capivaras.json)**: um projeto completo para importar.
 
 ## Taxonomia BGE
 
@@ -73,7 +82,7 @@ Chaves usadas:
 | `bitnik-rule-forge:current-slug` | slug do último projeto aberto (para retomar ao recarregar) |
 | `bitnik-rule-forge:project:<slug>` | `state` completo (JSON) desse projeto |
 
-O `slug` é derivado do nome do jogo (`slugify`), com sufixo numérico em caso de colisão. Uma cópia de trabalho não guardada (`currentSlug === null`) não é autoguardada — "Guardar" pede logo um nome ("Guardar como…").
+O `slug` é derivado do nome do jogo (`slugify`), com sufixo numérico em caso de colisão. Uma cópia de trabalho não guardada (`currentSlug === null`) não é autoguardada — "Guardar" pede logo um nome ("Guardar como…"). Para não haver perdas: um indicador junto aos botões mostra "Por guardar" / "Guardado", o browser avisa ao fechar a página com trabalho por guardar, e "Carregar", "Importar…" e o exemplo pedem confirmação antes de substituir trabalho por guardar.
 
 ## Interface
 
@@ -97,12 +106,12 @@ Grelha de cartões estilo ficha, cada um com título, tag de `kind` e o triplo G
 - "Copiar prompt para o teu AI" monta um prompt estruturado (`buildPrompt()`: papel, objetivo, taxonomia BGE, fluxo, regras, requisitos e formato de saída) e copia-o para a área de transferência. Cola-o num AI à tua escolha (OpenCode, ChatGPT, Gemini, Claude…), que deve devolver um ficheiro HTML; cola o código na caixa abaixo (o markdown e o texto à volta são removidos automaticamente).
 - "Gerar com API (só no Claude.ai)" faz o pedido diretamente à API da Anthropic; só funciona dentro do preview de artifacts do Claude.ai.
 - O código é editável na textarea antes de aceitar.
-- "Commit às regras" só fica disponível depois de marcar a checkbox "Revi o código gerado" — grava uma entrada no histórico de commits do projeto atual.
+- "Commit às regras" só fica disponível depois de marcar a checkbox "Revi o código gerado" — grava uma entrada no histórico de commits do projeto atual. Cada entrada tem **Ver código** (coloca-o na caixa, sem alterar o commit) e **Descarregar**.
 - "Descarregar .html" exporta o código da textarea como ficheiro standalone.
 
 ## Exemplo incluído
 
-O botão "Exemplo: Tic Tac Toe" (`loadTicTacToeExample()`) pré-carrega um fluxo de 9 nós e 7 cartões Gherkin do jogo do galo — um exemplo pequeno que usa os quatro tipos BGE e inclui o ciclo de turnos. Fica guardado como o projeto `tic-tac-toe-exemplo`.
+O botão "Exemplo: Tic Tac Toe" (`loadTicTacToeExample()`) pré-carrega um fluxo de 9 nós e 7 cartões Gherkin do jogo do galo — um exemplo pequeno que usa os quatro tipos BGE e inclui o ciclo de turnos. Fica guardado como o projeto `tic-tac-toe-exemplo`; se já o tinhas com alterações tuas, a app avisa antes de o substituir pelo original.
 
 ## Importar / Exportar
 
