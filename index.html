@@ -123,7 +123,7 @@
       <button class="btn" id="saveAsBtn">Guardar como…</button>
       <button class="btn primary" id="saveProjectBtn">Guardar</button>
       <button class="btn danger" id="deleteProjectBtn">Apagar</button>
-      <button class="btn" id="loadCapivarasBtn">Exemplo: Capivaras</button>
+      <button class="btn" id="loadExampleBtn">Exemplo: Tic Tac Toe</button>
       <span class="status" id="projectStatus"></span>
     </div>
   </header>
@@ -171,7 +171,7 @@
       <div class="row">
         <div>
           <label>Título</label>
-          <input id="cf-title" placeholder="Ex: Completar objetivo Trio">
+          <input id="cf-title" placeholder="Ex: Vitória com 3 em linha">
         </div>
         <div>
           <label>Tipo (taxonomy)</label>
@@ -184,11 +184,11 @@
         </div>
       </div>
       <label>Dado que…</label>
-      <textarea id="cf-given" rows="2" placeholder="Dado que o jogador tem 2 cartas Charm da mesma cor em jogo"></textarea>
+      <textarea id="cf-given" rows="2" placeholder="Dado que um jogador acabou de marcar uma casa"></textarea>
       <label>Quando…</label>
-      <textarea id="cf-when" rows="2" placeholder="Quando o jogador joga uma terceira carta Charm da mesma cor"></textarea>
+      <textarea id="cf-when" rows="2" placeholder="Quando esse jogador tem 3 símbolos iguais numa linha"></textarea>
       <label>Então…</label>
-      <textarea id="cf-then" rows="2" placeholder="Então o objetivo Trio é completado e o jogador ganha 3 pontos"></textarea>
+      <textarea id="cf-then" rows="2" placeholder="Então esse jogador vence e o jogo termina"></textarea>
       <div class="actions">
         <button class="btn primary" id="saveCardBtn">Guardar cartão</button>
         <button class="btn" id="cancelCardBtn">Cancelar</button>
@@ -642,7 +642,7 @@ Gera UM único ficheiro HTML (HTML + CSS + JS inline, sem frameworks, sem depend
 
 # TAXONOMIA BGE (os 4 tipos de nó e de cartão)
 - DATA: estado observável e condições do jogo — o que existe ou é verdade num dado momento (variáveis, contadores, posse de tokens). Corresponde à cláusula "Dado".
-- FLOW: sequência, turnos e fases — controla quando algo pode acontecer e em que ordem. Ex: início de ronda, revelação simultânea.
+- FLOW: sequência, turnos e fases — controla quando algo pode acontecer e em que ordem. Ex: início de jogo, turno do jogador, fim de jogo.
 - ACTION: jogadas do jogador (ou do sistema, ex: timeout) — o que é feito. É o gatilho de uma regra, cláusula "Quando".
 - SCORE: efeitos e pontuação — a consequência de uma ação validada. Corresponde à cláusula "Então".
 
@@ -663,7 +663,7 @@ ${cardsTxt}
 1. Um único ficheiro HTML válido e autocontido.
 2. Respeita a ordem do fluxo: uma ação só é permitida na fase certa (nós FLOW) e só depois dos nós que a precedem.
 3. Interface mínima mas jogável: estado do jogo sempre visível (nós DATA), botões para cada ação (nós ACTION), e o resultado das regras SCORE mostrado de forma clara (pontos, tokens, cartas).
-4. Comenta o código a indicar a que nó/cartão cada bloco corresponde (ex: // ACTION c3: jogar carta Charm).
+4. Comenta o código a indicar a que nó/cartão cada bloco corresponde (ex: // ACTION c2: <título do cartão>).
 5. Se uma regra for ambígua, assume a interpretação mais simples e regista-a num comentário "// ASSUNÇÃO: ..." — não faças perguntas.
 
 # FORMATO DE SAÍDA
@@ -787,61 +787,68 @@ document.getElementById('loadProjectBtn').addEventListener('click', ()=>{
 document.getElementById('saveAsBtn').addEventListener('click', saveProjectAs);
 document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
 document.getElementById('deleteProjectBtn').addEventListener('click', deleteProject);
-document.getElementById('loadCapivarasBtn').addEventListener('click', loadCapivarasExample);
+document.getElementById('loadExampleBtn').addEventListener('click', loadTicTacToeExample);
 
-// ---------- Capivaras example ----------
-async function loadCapivarasExample(){
-  const name = 'Capivaras (exemplo)';
-  const slug = 'capivaras-exemplo';
+// ---------- Tic Tac Toe example ----------
+async function loadTicTacToeExample(){
+  const name = 'Tic Tac Toe (exemplo)';
+  const slug = 'tic-tac-toe-exemplo';
   const nodes = [
-    {id:'n1', kind:'FLOW',   label:'Início de ronda',                    x: 20,  y: 30},
-    {id:'n2', kind:'DATA',   label:'Apostas secretas por jogador',       x: 220, y: 30},
-    {id:'n3', kind:'ACTION', label:'Jogador aposta em segredo',          x: 20,  y: 130},
-    {id:'n4', kind:'SCORE',  label:'Jogador recebe token de ave',        x: 365, y: 230},
-    {id:'n5', kind:'FLOW',   label:'Revelação simultânea',               x: 60,  y: 200},
-    {id:'n6', kind:'SCORE',  label:'Atribuir carta Capivara',            x: 20,  y: 330},
-    {id:'n7', kind:'SCORE',  label:'Token de bónus (highscore de aves)', x: 365, y: 325}
+    {id:'n1', kind:'FLOW',   label:'Início de jogo',               x: 20,  y: 30},
+    {id:'n2', kind:'DATA',   label:'Tabuleiro 3x3 (9 casas)',      x: 240, y: 30},
+    {id:'n3', kind:'DATA',   label:'Jogador atual (X ou O)',       x: 480, y: 30},
+    {id:'n4', kind:'FLOW',   label:'Turno do jogador',             x: 20,  y: 140},
+    {id:'n5', kind:'ACTION', label:'Jogador marca uma casa livre', x: 240, y: 140},
+    {id:'n6', kind:'SCORE',  label:'Verificar 3 em linha',         x: 240, y: 250},
+    {id:'n7', kind:'SCORE',  label:'Verificar empate',             x: 480, y: 250},
+    {id:'n8', kind:'FLOW',   label:'Fim de jogo',                  x: 480, y: 350},
+    {id:'n9', kind:'FLOW',   label:'Passar a vez ao outro jogador', x: 20, y: 350}
   ];
   const edges = [
-    {from:'n1', to:'n2'}, {from:'n2', to:'n3'}, {from:'n3', to:'n5'},
-    {from:'n5', to:'n6'}, {from:'n6', to:'n4'}, {from:'n6', to:'n7'}
+    {from:'n1', to:'n2'}, {from:'n1', to:'n3'}, {from:'n3', to:'n4'}, {from:'n2', to:'n5'},
+    {from:'n4', to:'n5'}, {from:'n5', to:'n6'}, {from:'n6', to:'n7'}, {from:'n6', to:'n8'},
+    {from:'n7', to:'n8'}, {from:'n7', to:'n9'}, {from:'n9', to:'n4'}
   ];
   const cards = [
-    {id:'c1', kind:'ACTION', title:'Aposta secreta válida',
-      given:'que é a ronda de apostas e o jogador ainda não apostou nesta ronda',
-      when:'o jogador escolhe um valor de aposta dentro dos tokens que tem disponíveis',
-      then:'a aposta fica oculta dos outros jogadores até à revelação simultânea'},
-    {id:'c2', kind:'SCORE', title:'Token de ave só após a pontuação',
-      given:'que a carta Capivara da ronda já foi pontuada',
-      when:'a verificação de pontuação da ronda termina',
-      then:'o jogador recebe o token de ave — nunca antes da pontuação da carta'},
-    {id:'c3', kind:'ACTION', title:'Jogador desconectado aposta automaticamente',
-      given:'que um jogador está desconectado durante a ronda de apostas',
-      when:'o temporizador da ronda expira',
-      then:'o sistema submete automaticamente a aposta mínima em nome desse jogador'},
-    {id:'c4', kind:'FLOW', title:'Revelação simultânea',
-      given:'que todos os jogadores ativos já apostaram nesta ronda',
-      when:'a ronda avança para a fase de revelação',
-      then:'todas as apostas são reveladas ao mesmo tempo e comparadas, sem vantagem de ordem'},
-    {id:'c5', kind:'SCORE', title:'Vencedor da ronda recebe carta Capivara',
-      given:'que as apostas foram reveladas',
-      when:'um jogador tem a aposta mais alta sem ultrapassar o limite da ronda',
-      then:'esse jogador recebe a carta Capivara da ronda e os pontos correspondentes'},
-    {id:'c6', kind:'SCORE', title:'Token de bónus por highscore de aves',
-      given:'que a pontuação da carta Capivara está a ser verificada',
-      when:'os pontos de ave de um jogador superam o highscore de pontos de ave',
-      then:'esse jogador fica com o token de bónus'}
+    {id:'c1', kind:'DATA', title:'Tabuleiro inicial',
+      given:'que começa um novo jogo',
+      when:'o tabuleiro é criado',
+      then:'as 9 casas estão vazias e o jogador atual é X'},
+    {id:'c2', kind:'ACTION', title:'Marcar casa livre',
+      given:'que é o turno do jogador atual e a casa escolhida está vazia',
+      when:'o jogador clica nessa casa',
+      then:'a casa fica marcada com o símbolo do jogador atual (X ou O)'},
+    {id:'c3', kind:'ACTION', title:'Casa ocupada é inválida',
+      given:'que a casa escolhida já está marcada',
+      when:'o jogador clica nessa casa',
+      then:'a jogada é rejeitada, nada muda e o turno continua a ser do mesmo jogador'},
+    {id:'c4', kind:'SCORE', title:'Vitória com 3 em linha',
+      given:'que um jogador acabou de marcar uma casa',
+      when:'esse jogador tem 3 símbolos iguais numa linha, coluna ou diagonal',
+      then:'esse jogador vence e o jogo termina'},
+    {id:'c5', kind:'SCORE', title:'Empate',
+      given:'que um jogador acabou de marcar uma casa e ninguém venceu',
+      when:'as 9 casas estão preenchidas',
+      then:'o jogo termina empatado'},
+    {id:'c6', kind:'FLOW', title:'Alternar turnos',
+      given:'que um jogador acabou de marcar uma casa e o jogo não terminou',
+      when:'a jogada é validada',
+      then:'a vez passa ao outro jogador (X passa a O e O passa a X)'},
+    {id:'c7', kind:'FLOW', title:'Jogo terminado bloqueia jogadas',
+      given:'que o jogo terminou por vitória ou empate',
+      when:'um jogador tenta marcar uma casa',
+      then:'a jogada é ignorada e o resultado mantém-se'}
   ];
   state = {gameName: name, nodes, edges, cards, commits: []};
   currentSlug = slug;
-  nodeSeq = 8; cardSeq = 7;
+  nodeSeq = 10; cardSeq = 8;
   document.getElementById('gameName').value = name;
   await storageAdapter.set(projectKey(slug), JSON.stringify(state), false);
   await bumpIndex(slug, name);
   await storageAdapter.set(CURRENT_KEY, slug, false);
   await refreshProjectSelect();
   render(); renderCommits(); renderSummary();
-  document.getElementById('projectStatus').textContent = 'Exemplo Capivaras carregado — regras simplificadas para ilustrar o fluxo, não é a versão de produção.';
+  document.getElementById('projectStatus').textContent = 'Exemplo Tic Tac Toe carregado — muda o fluxo e os cartões e depois gera o protótipo.';
 }
 
 // ---------- init ----------

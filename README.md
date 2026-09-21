@@ -14,23 +14,23 @@ O *Bitnik Game Engine* (BGE) classifica toda a lógica de um jogo em quatro tipo
 
 ### 🇵🇹 Português
 
-| Tipo | Cor | Definição | Quando usar | Exemplo (Capivaras) |
+| Tipo | Cor | Definição | Quando usar | Exemplo (Tic Tac Toe) |
 |---|---|---|---|---|
-| **DATA** | azul | Estado observável e condições do jogo — o que *existe* ou *é verdade* num dado momento (variáveis, contadores, posse de tokens). | Para representar informação que outras regras vão ler ou verificar (a cláusula "Dado que…" de um cartão). | "Apostas secretas por jogador" |
-| **FLOW** | verde | Sequência, turnos e fases — controla *quando* algo pode acontecer e em que ordem. | Para marcar transições de fase/ronda ou pontos de sincronização entre jogadores. | "Início de ronda", "Revelação simultânea" |
-| **ACTION** | laranja | Jogadas do jogador (ou do sistema, ex. timeout) — o que é *feito*. | Para o gatilho de uma regra (a cláusula "Quando…" de um cartão). | "Jogador aposta em segredo" |
-| **SCORE** | dourado | Efeitos e pontuação — a *consequência* de uma ação validada. | Para o resultado de uma regra (a cláusula "Então…" de um cartão), normalmente com impacto na pontuação ou no estado. | "Atribuir carta Capivara" |
+| **DATA** | azul | Estado observável e condições do jogo — o que *existe* ou *é verdade* num dado momento (variáveis, contadores, posse de tokens). | Para representar informação que outras regras vão ler ou verificar (a cláusula "Dado que…" de um cartão). | "Tabuleiro 3x3 (9 casas)", "Jogador atual (X ou O)" |
+| **FLOW** | verde | Sequência, turnos e fases — controla *quando* algo pode acontecer e em que ordem. | Para marcar transições de fase/ronda ou pontos de sincronização entre jogadores. | "Início de jogo", "Turno do jogador", "Fim de jogo" |
+| **ACTION** | laranja | Jogadas do jogador (ou do sistema, ex. timeout) — o que é *feito*. | Para o gatilho de uma regra (a cláusula "Quando…" de um cartão). | "Jogador marca uma casa livre" |
+| **SCORE** | dourado | Efeitos e pontuação — a *consequência* de uma ação validada. | Para o resultado de uma regra (a cláusula "Então…" de um cartão), normalmente com impacto na pontuação ou no estado. | "Verificar 3 em linha", "Verificar empate" |
 
 **Regra prática:** um cartão Gherkin típico começa num `DATA` (a condição), é despoletado por uma `ACTION`, pode depender de um `FLOW` (a fase certa), e termina num efeito `SCORE`. Se uma regra não encaixa claramente num destes quatro tipos, é provável que devesse ser dividida em mais do que um cartão/nó.
 
 ### 🇬🇧 English
 
-| Type | Color | Definition | When to use it | Example (Capivaras) |
+| Type | Color | Definition | When to use it | Example (Tic Tac Toe) |
 |---|---|---|---|---|
-| **DATA** | blue | Observable state and game conditions — what *exists* or *is true* at a given moment (variables, counters, token ownership). | To represent information other rules will read or check (a card's "Given…" clause). | "Secret bets per player" |
-| **FLOW** | green | Sequence, turns and phases — controls *when* something is allowed to happen and in what order. | To mark phase/round transitions or synchronization points between players. | "Round start", "Simultaneous reveal" |
-| **ACTION** | orange | Player (or system, e.g. timeout) moves — what gets *done*. | For a rule's trigger (a card's "When…" clause). | "Player bets in secret" |
-| **SCORE** | gold | Effects and scoring — the *consequence* of a validated action. | For a rule's outcome (a card's "Then…" clause), usually affecting score or state. | "Award Capybara card" |
+| **DATA** | blue | Observable state and game conditions — what *exists* or *is true* at a given moment (variables, counters, token ownership). | To represent information other rules will read or check (a card's "Given…" clause). | "3x3 board (9 cells)", "Current player (X or O)" |
+| **FLOW** | green | Sequence, turns and phases — controls *when* something is allowed to happen and in what order. | To mark phase/round transitions or synchronization points between players. | "Game start", "Player turn", "Game over" |
+| **ACTION** | orange | Player (or system, e.g. timeout) moves — what gets *done*. | For a rule's trigger (a card's "When…" clause). | "Player marks a free cell" |
+| **SCORE** | gold | Effects and scoring — the *consequence* of a validated action. | For a rule's outcome (a card's "Then…" clause), usually affecting score or state. | "Check 3 in a row", "Check draw" |
 
 **Rule of thumb:** a typical Gherkin card starts from a `DATA` condition, is triggered by an `ACTION`, may depend on a `FLOW` gate (the right phase), and ends in a `SCORE` effect. If a rule doesn't clearly fit one of these four types, it's likely doing too much and should be split into more than one card/node.
 
@@ -92,7 +92,7 @@ Grelha de cartões estilo ficha, cada um com título, tag de `kind` e o triplo G
 
 ## Exemplo incluído
 
-O botão "Exemplo: Capivaras" (`loadCapivarasExample()`) pré-carrega um fluxo e cartões simplificados inspirados no jogo de apostas *Capivaras* — ilustrativo, não é a réplica exata das regras em produção. Fica guardado como o projeto `capivaras-exemplo`.
+O botão "Exemplo: Tic Tac Toe" (`loadTicTacToeExample()`) pré-carrega um fluxo de 9 nós e 7 cartões Gherkin do jogo do galo — um exemplo pequeno que usa os quatro tipos BGE e inclui o ciclo de turnos. Fica guardado como o projeto `tic-tac-toe-exemplo`.
 
 ## Stack
 
