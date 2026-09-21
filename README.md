@@ -78,15 +78,25 @@ O `slug` é derivado do nome do jogo (`slugify`), com sufixo numérico em caso d
 ## Interface
 
 ### 1 · Fluxo
-Canvas com grelha onde se adicionam nós (`+ Nó`, escolhendo o `kind` no dropdown), se arrastam livremente (mouse e touch), e se ligam com "Ligar nós" (clicar em dois nós cria uma aresta dirigida, desenhada em SVG com seta). Uma ligação existente pode ser selecionada clicando na própria linha (fica realçada) e removida com "Apagar ligação", sem afetar os nós em cada ponta.
+Editor de nós com pan, zoom e minimapa. As boas práticas implementadas e a comparação com outras ferramentas estão em [docs/BENCHMARK.md](docs/BENCHMARK.md).
+
+- **Criar nós:** `+ Nó` (tipo escolhido no dropdown) ou duplo clique no fundo. O nome pede-se logo (Enter aceita o nome por omissão).
+- **Ligar:** arrasta a bolinha que aparece à direita de um nó para outro nó (fica verde se a ligação é válida, vermelha se não). Largar no vazio cria um nó novo já ligado. Também funciona "Ligar nós" (ou a tecla `L`) com dois cliques. Ligações duplicadas ou de um nó a si próprio são recusadas com uma mensagem.
+- **Editar:** duplo clique ou `F2` renomeia; com um nó selecionado, o painel de detalhe permite mudar o nome e o tipo. Clicar numa ligação seleciona-a; "Apagar ligação" (ou `Del`) remove-a sem afetar os nós.
+- **Navegar:** arrastar o fundo move a vista, `Ctrl` + roda faz zoom, os botões `−`/`+`/`⤢` ajustam o zoom e a vista, e o minimapa permite saltar para outra zona.
+- **Selecionar:** `Shift` + clique ou `Shift` + arrastar (caixa); `Ctrl+A` seleciona tudo. As ligações dos nós selecionados ficam realçadas.
+- **Organizar:** o botão "Organizar" coloca os nós numa grelha sem ligações por trás de outros nós, com o fluxo de cima para baixo.
+- **Anular / refazer:** `Ctrl+Z` / `Ctrl+Y` (100 passos, só para o fluxo). A grelha (12 px) pode ser desligada em "Grelha".
+- **Teclado:** `Tab` navega entre nós, `Enter` seleciona (ou liga, no modo ligar), setas movem a seleção, `Del` apaga, `Esc` cancela. A lista completa está em "Atalhos e gestos", por baixo do canvas.
 
 ### 2 · Cartões de Lógica
 Grelha de cartões estilo ficha, cada um com título, tag de `kind` e o triplo Gherkin (Dado/Quando/Então). Suporta criar, editar e apagar.
 
 ### 3 · Gerar & Rever
 - Resume o estado atual (nº de nós, ligações, cartões).
-- "Gerar dummy PWA com LLM" monta um prompt (`buildPrompt()`) com o fluxo e os cartões, pede a Claude um único ficheiro HTML autocontido que implemente **apenas** as regras descritas, comentando qual nó/cartão cada bloco de lógica implementa.
-- O código gerado é editável na textarea antes de aceitar.
+- "Copiar prompt para o teu AI" monta um prompt estruturado (`buildPrompt()`: papel, objetivo, taxonomia BGE, fluxo, regras, requisitos e formato de saída) e copia-o para a área de transferência. Cola-o num AI à tua escolha (OpenCode, ChatGPT, Gemini, Claude…), que deve devolver um ficheiro HTML; cola o código na caixa abaixo (o markdown e o texto à volta são removidos automaticamente).
+- "Gerar com API (só no Claude.ai)" faz o pedido diretamente à API da Anthropic; só funciona dentro do preview de artifacts do Claude.ai.
+- O código é editável na textarea antes de aceitar.
 - "Commit às regras" só fica disponível depois de marcar a checkbox "Revi o código gerado" — grava uma entrada no histórico de commits do projeto atual.
 - "Descarregar .html" exporta o código da textarea como ficheiro standalone.
 
@@ -94,14 +104,35 @@ Grelha de cartões estilo ficha, cada um com título, tag de `kind` e o triplo G
 
 O botão "Exemplo: Tic Tac Toe" (`loadTicTacToeExample()`) pré-carrega um fluxo de 9 nós e 7 cartões Gherkin do jogo do galo — um exemplo pequeno que usa os quatro tipos BGE e inclui o ciclo de turnos. Fica guardado como o projeto `tic-tac-toe-exemplo`.
 
+## Importar / Exportar
+
+Os botões **Importar…** e **Exportar** (barra de projetos) carregam e descarregam um projeto em `.json` — o fluxo e os cartões, sem o histórico de commits. Importar cria sempre um projeto novo (nunca sobrescreve um existente) e valida o ficheiro antes de o aceitar: tipos `DATA`/`FLOW`/`ACTION`/`SCORE`, ids `n1…`/`c1…` e ligações só entre nós que existem.
+
+Formato do ficheiro:
+
+```json
+{
+  "gameName": "Capivaras",
+  "nodes": [{ "id": "n1", "kind": "FLOW", "label": "Iniciar jogo", "x": 10, "y": 10 }],
+  "edges": [{ "from": "n1", "to": "n2" }],
+  "cards": [{ "id": "c1", "kind": "FLOW", "title": "…", "given": "que…", "when": "…", "then": "…" }]
+}
+```
+
+### [examples/capivaras.json](examples/capivaras.json)
+
+Modelo do jogo [Capivaras](https://capivaras.bitnik.games) (15 nós, 18 ligações, 19 cartões) escrito a partir da lógica implementada no `server.js` do repo `capivaras` (baralho de 36 cartas, apostas secretas, revelação simultânea, token do pássaro com roubo e empates, bónus de nenúfares, pontuação final, bots do modo solo, aposta automática e ligação caída). Descarrega-o e usa **Importar…**.
+
+Onde `REGRAS.md` e o código divergem, o ficheiro segue o código — ver o cartão `c14`: no fim de cada ronda **todas** as cartas da mesa (ganhas ou não) vão para o descarte, por isso na segunda passagem pelo baralho voltam a entrar as 36.
+
 ## Stack
 
 Vanilla JS, HTML, CSS — sem frameworks, sem dependências externas (à exceção de fontes do Google Fonts), seguindo os princípios de ficheiro único usados no resto do Bitnik Studio.
 
 ## Limitações conhecidas
 
-- A geração por LLM depende do ambiente de preview do Claude.ai (ver secção "Uso"); não há campo para inserir uma chave de API própria.
+- O botão "Gerar com API" depende do ambiente de preview do Claude.ai (ver secção "Uso"); não há campo para inserir uma chave de API própria. Fora dele, usa "Copiar prompt".
 - Sem tratamento de erro granular no `fetch` de geração — falhas de rede ou respostas inesperadas caem todas na mesma mensagem genérica de erro.
-- Sem testes automatizados.
-- `localStorage` (fallback fora do Claude.ai) é por browser/dispositivo — não há sincronização entre máquinas nem exportação/importação de projetos além do download do HTML gerado num commit.
-- Arrastar nós no canvas não tem alternativa por teclado (acessibilidade).
+- Sem testes automatizados no repositório (o editor foi verificado manualmente no browser).
+- `localStorage` (fallback fora do Claude.ai) é por browser/dispositivo — não há sincronização entre máquinas; usa Exportar/Importar para partilhar projetos.
+- Editor de fluxo: sem pinch-to-zoom no toque, undo/redo só para nós e ligações (não cartões), ligações sempre retas e sem rótulos, e o "Organizar" pode deixar ligações por trás de nós em grafos densos (ver [docs/BENCHMARK.md](docs/BENCHMARK.md)).
