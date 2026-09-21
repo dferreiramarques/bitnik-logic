@@ -667,7 +667,10 @@ ${cardsTxt}
 5. Se uma regra for ambígua, assume a interpretação mais simples e regista-a num comentário "// ASSUNÇÃO: ..." — não faças perguntas.
 
 # FORMATO DE SAÍDA
-Responde APENAS com o código HTML completo, a começar em <!DOCTYPE html> e a acabar em </html>. Sem explicações antes ou depois e sem blocos de markdown (sem crases).`;
+Entrega o resultado como um FICHEIRO HTML, não como texto solto na conversa:
+- Se tiveres artifacts, canvas ou uma ferramenta para criar ficheiros: cria um único artifact/ficheiro do tipo HTML chamado "${slugify(gameName)}.html", com o documento completo (de <!DOCTYPE html> a </html>).
+- Se não tiveres nada disso: responde com o documento completo dentro de UM único bloco de código html.
+Em ambos os casos, não escrevas explicações longas — no máximo uma frase a seguir a entregar o ficheiro.`;
 }
 
 // Free AIs often wrap the HTML in markdown fences or add chatter around it.
