@@ -93,6 +93,9 @@
   .summary b{color:var(--ink);}
   .gen-actions{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
   .status{font-size:12.5px;color:var(--ink-dim);}
+  .prompt-details{margin-bottom:14px;font-size:12.5px;color:var(--ink-dim);}
+  .prompt-details summary{cursor:pointer;margin-bottom:8px;}
+  .prompt-details textarea{width:100%;min-height:220px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.5;padding:10px;resize:vertical;}
   .code-panel{background:#0f1015;border:1px solid var(--line);border-radius:4px;}
   .code-panel textarea{width:100%;min-height:340px;background:transparent;border:none;color:#d6f5e3;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.55;padding:14px;resize:vertical;}
   .review-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap;gap:10px;}
@@ -200,11 +203,16 @@
   <section class="tab" id="tab-gen">
     <div class="summary" id="genSummary"></div>
     <div class="gen-actions">
-      <button class="btn primary" id="generateBtn">Gerar dummy PWA com LLM</button>
+      <button class="btn primary" id="copyPromptBtn">Copiar prompt para o teu AI</button>
+      <button class="btn" id="generateBtn" title="Só funciona dentro do preview de artifacts do Claude.ai">Gerar com API (só no Claude.ai)</button>
       <span class="status" id="genStatus"></span>
     </div>
+    <details class="prompt-details" id="promptDetails">
+      <summary>Ver prompt</summary>
+      <textarea id="promptOut" readonly spellcheck="false"></textarea>
+    </details>
     <div class="code-panel">
-      <textarea id="codeOut" spellcheck="false" placeholder="O código gerado aparece aqui — podes editar antes de confirmar."></textarea>
+      <textarea id="codeOut" spellcheck="false" placeholder="Cola aqui o HTML devolvido pelo teu AI (OpenCode, ChatGPT, Gemini…) ou o gerado pela API — podes editar antes de confirmar."></textarea>
       <div class="review-bar">
         <label><input type="checkbox" id="reviewedCheck"> Revi o código gerado</label>
         <div style="display:flex;gap:8px;">
@@ -612,38 +620,86 @@ function renderSummary(){
   s.innerHTML = `<b>${escapeHtml(document.getElementById('gameName').value || 'Jogo Dummy')}</b> —
     ${state.nodes.length} nós de fluxo, ${state.edges.length} ligações, ${state.cards.length} cartões de lógica.
     ${state.cards.length===0 ? ' Cria pelo menos um cartão antes de gerar.' : ''}`;
+  document.getElementById('promptOut').value = buildPrompt();
 }
 
 function buildPrompt(){
   const gameName = document.getElementById('gameName').value || 'Jogo Dummy';
+  const nodeName = id => { const n = state.nodes.find(n=>n.id===id); return n ? n.label+' ('+id+')' : id; };
   const nodesTxt = state.nodes.map(n=>`- [${n.kind}] ${n.label} (id:${n.id})`).join('\n') || '(sem nós definidos)';
-  const edgesTxt = state.edges.map(e=>`- ${e.from} -> ${e.to}`).join('\n') || '(sem ligações)';
+  const edgesTxt = state.edges.map(e=>`- ${nodeName(e.from)} -> ${nodeName(e.to)}`).join('\n') || '(sem ligações)';
   const cardsTxt = state.cards.map(c=>
 `Cartão "${c.title}" [${c.kind}]
   Dado ${c.given}
   Quando ${c.when}
   Então ${c.then}`).join('\n\n') || '(sem cartões)';
 
-  return `Vais gerar um PWA dummy de tabuleiro, de ficheiro único (HTML+CSS+JS inline, sem dependências externas), que implementa APENAS as regras descritas abaixo, seguindo o taxonomy de nós BGE (DATA / FLOW / ACTION / SCORE) do motor Bitnik Studio.
+  return `# PAPEL
+És um programador de protótipos de jogos de tabuleiro no motor Bitnik Studio (BGE).
 
-Jogo: ${gameName}
+# OBJETIVO
+Gera UM único ficheiro HTML (HTML + CSS + JS inline, sem frameworks, sem dependências externas, sem rede) com um protótipo "dummy" jogável do jogo abaixo. Serve para validar as regras, não precisa de arte. Implementa APENAS as regras descritas — não inventes regras novas.
 
-Fluxo (nós):
+# TAXONOMIA BGE (os 4 tipos de nó e de cartão)
+- DATA: estado observável e condições do jogo — o que existe ou é verdade num dado momento (variáveis, contadores, posse de tokens). Corresponde à cláusula "Dado".
+- FLOW: sequência, turnos e fases — controla quando algo pode acontecer e em que ordem. Ex: início de ronda, revelação simultânea.
+- ACTION: jogadas do jogador (ou do sistema, ex: timeout) — o que é feito. É o gatilho de uma regra, cláusula "Quando".
+- SCORE: efeitos e pontuação — a consequência de uma ação validada. Corresponde à cláusula "Então".
+
+# JOGO
+Nome: ${gameName}
+
+# FLUXO
+Nós:
 ${nodesTxt}
 
-Ligações do fluxo:
+Ligações (A -> B significa que B vem depois de A):
 ${edgesTxt}
 
-Cartões de lógica (Gherkin -> regra executável):
+# REGRAS (cartões Gherkin)
 ${cardsTxt}
 
-Requisitos:
-- Um único ficheiro HTML válido, autocontido, sem frameworks.
-- Comenta o código indicando a que nó/cartão cada bloco de lógica corresponde (ex: // ACTION c3: jogar carta Charm).
-- Interface mínima mas jogável (tabuleiro/estado visível, botões para as ações descritas nos cartões).
-- Este é um protótipo "dummy" para validar as regras, não precisa de arte nem de rede.
-- Responde APENAS com o código HTML, sem explicações antes ou depois, sem blocos de markdown.`;
+# REQUISITOS DE IMPLEMENTAÇÃO
+1. Um único ficheiro HTML válido e autocontido.
+2. Respeita a ordem do fluxo: uma ação só é permitida na fase certa (nós FLOW) e só depois dos nós que a precedem.
+3. Interface mínima mas jogável: estado do jogo sempre visível (nós DATA), botões para cada ação (nós ACTION), e o resultado das regras SCORE mostrado de forma clara (pontos, tokens, cartas).
+4. Comenta o código a indicar a que nó/cartão cada bloco corresponde (ex: // ACTION c3: jogar carta Charm).
+5. Se uma regra for ambígua, assume a interpretação mais simples e regista-a num comentário "// ASSUNÇÃO: ..." — não faças perguntas.
+
+# FORMATO DE SAÍDA
+Responde APENAS com o código HTML completo, a começar em <!DOCTYPE html> e a acabar em </html>. Sem explicações antes ou depois e sem blocos de markdown (sem crases).`;
 }
+
+// Free AIs often wrap the HTML in markdown fences or add chatter around it.
+function cleanCode(text){
+  const t = text.trim();
+  const start = t.search(/<!doctype html|<html/i);
+  const end = t.toLowerCase().lastIndexOf('</html>');
+  if(start !== -1 && end > start) return t.slice(start, end + 7);
+  return t.replace(/^```[a-z]*\s*/i,'').replace(/```\s*$/,'').trim();
+}
+
+document.getElementById('codeOut').addEventListener('change', (e)=>{
+  e.target.value = cleanCode(e.target.value);
+});
+
+document.getElementById('copyPromptBtn').addEventListener('click', async ()=>{
+  if(state.cards.length === 0){ alert('Cria pelo menos um cartão de lógica primeiro.'); return; }
+  const statusEl = document.getElementById('genStatus');
+  const ta = document.getElementById('promptOut');
+  ta.value = buildPrompt();
+  try{
+    await navigator.clipboard.writeText(ta.value);
+  }catch(e){
+    document.getElementById('promptDetails').open = true;
+    ta.focus(); ta.select();
+    if(!document.execCommand('copy')){
+      statusEl.textContent = 'Não consegui copiar automaticamente — copia o prompt da caixa abaixo.';
+      return;
+    }
+  }
+  statusEl.textContent = 'Prompt copiado — cola-o no teu AI e traz o HTML de volta para a caixa abaixo.';
+});
 
 document.getElementById('generateBtn').addEventListener('click', async ()=>{
   if(state.cards.length === 0){ alert('Cria pelo menos um cartão de lógica primeiro.'); return; }
@@ -664,7 +720,7 @@ document.getElementById('generateBtn').addEventListener('click', async ()=>{
     });
     const data = await response.json();
     let text = (data.content || []).filter(b=>b.type==='text').map(b=>b.text).join('\n');
-    text = text.replace(/^```html\s*/i,'').replace(/```\s*$/,'').trim();
+    text = cleanCode(text);
     document.getElementById('codeOut').value = text || '// O LLM não devolveu código. Tenta novamente.';
     statusEl.textContent = 'Gerado — revê o código antes de fazer commit.';
   }catch(err){
