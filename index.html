@@ -58,12 +58,6 @@
   .btn:disabled{opacity:0.4;cursor:default;}
   .btn:disabled:hover{border-color:var(--line);}
   .flow-status{min-height:18px;font-size:12.5px;color:var(--ink-dim);margin-bottom:6px;}
-  .inspector{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:10px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;font-size:12.5px;color:var(--ink-dim);}
-  .inspector[hidden]{display:none;}
-  .inspector label{display:inline-flex;gap:6px;align-items:center;text-transform:uppercase;letter-spacing:0.06em;font-size:11px;}
-  .inspector input{background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border-radius:3px;width:230px;max-width:100%;text-transform:none;letter-spacing:0;}
-  .inspector select{padding:6px 8px;}
-
   .canvas-wrap{position:relative;height:min(68vh,640px);min-height:420px;background:
       linear-gradient(var(--line) 1px, transparent 1px),
       linear-gradient(90deg, var(--line) 1px, transparent 1px), var(--panel);
@@ -92,6 +86,71 @@
   .minimap.empty{display:none;}
   .minimap .mm-view{fill:rgba(233,231,221,0.1);stroke:var(--ink);stroke-width:2;vector-effect:non-scaling-stroke;}
   @media (max-width:640px){ .minimap{display:none;} }
+  /* ---- Block panel, card scopes, rules tab ---- */
+  .kindpill{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:0.08em;color:#0d0d0d;padding:3px 8px;border-radius:3px;white-space:nowrap;}
+  .kindpill[data-kind="DATA"]{background:var(--data);}
+  .kindpill[data-kind="FLOW"]{background:var(--flow);}
+  .kindpill[data-kind="ACTION"]{background:var(--action);}
+  .kindpill[data-kind="SCORE"]{background:var(--score);}
+  .flow-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;align-items:start;}
+  .flow-main{min-width:0;}
+  .block-panel{height:min(68vh,640px);min-height:420px;overflow:auto;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:13px;}
+  @media (max-width:1000px){ .flow-layout{grid-template-columns:1fr;} .block-panel{height:auto;min-height:0;} }
+  .bp-empty{color:var(--ink-dim);line-height:1.55;}
+  .bp-empty p{margin:0 0 8px;}
+  .bp-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .bp-head input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border-radius:3px;}
+  .bp-row{display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-dim);}
+  .bp-info{color:var(--ink-dim);font-size:12px;margin:6px 0 0;}
+  .block-panel h4{font-family:'Barlow Condensed',sans-serif;font-size:17px;margin:16px 0 6px;color:var(--score);}
+  .bp-card{background:var(--card);color:var(--card-ink);border-radius:2px;padding:7px 9px;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.45;}
+  .bp-card b{color:#4a3d16;}
+  .bp-card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;margin-bottom:2px;}
+  .bp-card button{margin-top:4px;font-size:11px;padding:2px 7px;background:rgba(0,0,0,0.08);border:none;border-radius:2px;cursor:pointer;color:#3a331c;}
+  .bp-none{font-size:12px;color:var(--ink-dim);margin:0 0 6px;}
+  .block-panel textarea{width:100%;min-height:140px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;padding:8px 9px;border-radius:3px;resize:vertical;}
+  .bp-hint{font-size:11.5px;color:var(--ink-dim);margin:4px 0 8px;}
+
+  .cards-filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;}
+  .chip{background:var(--panel-2);color:var(--ink-dim);border:1px solid var(--line);border-radius:14px;padding:4px 11px;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .chip:hover{border-color:#5b5d6c;}
+  .chip.on{color:#1b1707;background:var(--score);border-color:var(--score);font-weight:600;}
+  .chip span{opacity:0.75;margin-left:3px;}
+  .coverage{font-size:12.5px;color:var(--ink-dim);margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;}
+  .coverage .warn{color:#e0a97b;}
+  .coverage .ok{color:#7be0b5;}
+  .cards-group{font-family:'Barlow Condensed',sans-serif;font-size:21px;margin:20px 0 8px;display:flex;gap:8px;align-items:baseline;}
+  .cards-group span{font-size:13px;color:var(--ink-dim);font-family:'Inter',sans-serif;}
+  .rule-card .meta{font-family:'Inter',sans-serif;font-size:11px;margin:-2px 0 6px;color:#5a4d24;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .rule-card .meta .scope-pill{background:rgba(0,0,0,0.1);border-radius:9px;padding:1px 7px;}
+  .rule-card .meta .missing{color:#a3361f;font-weight:600;}
+
+  .rules-toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+  .rules-toolbar .hint{color:var(--ink-dim);font-size:12.5px;max-width:520px;line-height:1.5;}
+  .rules-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .rules-actions .check{font-size:12.5px;color:var(--ink-dim);display:inline-flex;gap:5px;align-items:center;cursor:pointer;}
+  .rules-status{min-height:18px;font-size:12.5px;color:var(--ink-dim);margin-bottom:8px;}
+  .rules-missing{margin-bottom:14px;font-size:12.5px;color:var(--ink-dim);display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;}
+  .rule-section{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:10px 12px;margin-bottom:10px;}
+  .rule-section.orphan{border-color:var(--danger);}
+  .rs-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;}
+  .rs-head h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;margin:0;flex:1;min-width:120px;}
+  .rs-title{flex:1;min-width:160px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;padding:3px 8px;border-radius:3px;}
+  .rs-badge{font-size:11px;color:#e08b7b;border:1px solid var(--danger);border-radius:9px;padding:1px 8px;}
+  .rs-tools{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;}
+  .rs-tools .btn{padding:3px 8px;font-size:12px;}
+  .rule-section textarea{width:100%;min-height:96px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.55;padding:9px 10px;border-radius:3px;resize:vertical;}
+  .rs-foot{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:12px;color:var(--ink-dim);margin-top:6px;align-items:center;}
+  .rs-foot .linkbtn{background:none;border:none;color:var(--score);cursor:pointer;padding:0;font-size:12px;text-decoration:underline;font-family:inherit;}
+  .doc-preview{margin-top:16px;color:var(--ink-dim);}
+  .doc-preview summary{cursor:pointer;font-size:13px;margin-bottom:8px;}
+  .doc{background:#fbfaf6;color:#222;border-radius:4px;padding:26px 30px;font-family:Georgia,'Times New Roman',serif;line-height:1.6;max-width:820px;}
+  .doc h1{font-size:28px;margin:0 0 14px;}
+  .doc h2{font-size:20px;margin:22px 0 6px;border-bottom:1px solid #ddd;padding-bottom:3px;}
+  .doc p{margin:0 0 10px;}
+  .doc ul{margin:0 0 10px;padding-left:22px;}
+  .doc .doc-cards{font-size:0.9em;color:#444;}
+
   /* ---- Onboarding: header actions, first-visit banner, tour, help ---- */
   .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
   .top-actions{display:flex;gap:8px;}
@@ -226,7 +285,7 @@
   </header>
 
   <div class="onboard" id="onboardBanner" hidden role="region" aria-label="Primeiros passos">
-    <div><b>Primeira vez aqui?</b> Faz o tour guiado (cerca de 3 minutos) ou abre a ajuda de consulta.</div>
+    <div><b>Primeira vez aqui?</b> Faz o tour guiado (cerca de 4 minutos) ou abre a ajuda de consulta.</div>
     <div class="onboard-actions">
       <button class="btn primary" id="onboardTour">Fazer o tour</button>
       <button class="btn" id="onboardHelp">Abrir a ajuda</button>
@@ -237,7 +296,8 @@
   <nav class="tabs">
     <button class="tab-btn active" data-tab="flow">1 · Fluxo</button>
     <button class="tab-btn" data-tab="cards">2 · Cartões de Lógica</button>
-    <button class="tab-btn" data-tab="gen">3 · Gerar &amp; Rever</button>
+    <button class="tab-btn" data-tab="rules">3 · Regras</button>
+    <button class="tab-btn" data-tab="gen">4 · Gerar &amp; Rever</button>
   </nav>
 
   <!-- FLOW TAB -->
@@ -262,30 +322,56 @@
       <span class="hint">Duplo clique no fundo cria um nó · arrasta a bolinha de um nó para o ligar</span>
     </div>
     <div class="flow-status" id="flowStatus" role="status" aria-live="polite"></div>
-    <div class="inspector" id="inspector" hidden>
-      <label>Nome <input id="insLabel" maxlength="60" autocomplete="off"></label>
-      <label>Tipo
-        <select id="insKind">
-          <option value="DATA">DATA</option>
-          <option value="FLOW">FLOW</option>
-          <option value="ACTION">ACTION</option>
-          <option value="SCORE">SCORE</option>
-        </select>
-      </label>
-      <span id="insInfo"></span>
-    </div>
-    <div class="canvas-wrap" id="canvas">
-      <div class="world" id="world">
-        <svg id="edgeLayer"></svg>
+    <div class="flow-layout">
+      <div class="flow-main">
+      <div class="canvas-wrap" id="canvas">
+        <div class="world" id="world">
+          <svg id="edgeLayer"></svg>
+        </div>
+        <div class="selbox" id="selbox" hidden></div>
+        <div class="canvas-controls">
+          <button class="btn" id="zoomOutBtn" title="Reduzir (-)" aria-label="Reduzir">−</button>
+          <span class="zoom-label" id="zoomLabel">100%</span>
+          <button class="btn" id="zoomInBtn" title="Ampliar (+)" aria-label="Ampliar">+</button>
+          <button class="btn" id="fitBtn" title="Ajustar à janela (F)" aria-label="Ajustar à janela">⤢</button>
+        </div>
+        <svg class="minimap empty" id="minimap" aria-hidden="true"></svg>
       </div>
-      <div class="selbox" id="selbox" hidden></div>
-      <div class="canvas-controls">
-        <button class="btn" id="zoomOutBtn" title="Reduzir (-)" aria-label="Reduzir">−</button>
-        <span class="zoom-label" id="zoomLabel">100%</span>
-        <button class="btn" id="zoomInBtn" title="Ampliar (+)" aria-label="Ampliar">+</button>
-        <button class="btn" id="fitBtn" title="Ajustar à janela (F)" aria-label="Ajustar à janela">⤢</button>
       </div>
-      <svg class="minimap empty" id="minimap" aria-hidden="true"></svg>
+      <aside class="block-panel" id="blockPanel" aria-label="Detalhe do bloco selecionado">
+        <div id="bpEmpty" class="bp-empty">
+          <p><b>Nenhum bloco selecionado.</b></p>
+          <p>Clica num bloco do canvas para ver e editar aqui o nome, o tipo, os <b>cartões Gherkin</b> desse bloco e o <b>texto que ele ocupa no documento de regras</b>.</p>
+        </div>
+        <div id="bpNode" hidden>
+          <div class="bp-head">
+            <span class="kindpill" id="bpKind"></span>
+            <input id="insLabel" maxlength="60" autocomplete="off" aria-label="Nome do bloco">
+          </div>
+          <label class="bp-row">Tipo
+            <select id="insKind">
+              <option value="DATA">DATA</option>
+              <option value="FLOW">FLOW</option>
+              <option value="ACTION">ACTION</option>
+              <option value="SCORE">SCORE</option>
+            </select>
+          </label>
+          <div class="bp-info" id="insInfo"></div>
+          <h4>Cartões deste bloco <span id="bpCardCount"></span></h4>
+          <div id="bpCards"></div>
+          <button class="btn" id="bpAddCard">+ Cartão neste bloco</button>
+          <h4>Texto nas regras</h4>
+          <textarea id="bpRules" placeholder="Explica aqui, por palavras tuas, como se joga esta parte. Este parágrafo entra no documento de regras."></textarea>
+          <div class="bp-hint">Vai para a secção deste bloco no separador Regras.</div>
+          <button class="btn" id="bpOpenRules">Ver no documento de regras</button>
+        </div>
+        <div id="bpMulti" hidden><p id="bpMultiText"></p></div>
+        <div id="bpEdge" hidden>
+          <p><b>Ligação selecionada</b></p>
+          <p id="bpEdgeText"></p>
+          <button class="btn danger" id="bpDeleteEdge">Apagar ligação</button>
+        </div>
+      </aside>
     </div>
     <details class="shortcuts" id="shortcuts">
       <summary>Atalhos e gestos</summary>
@@ -302,7 +388,7 @@
   <!-- CARDS TAB -->
   <section class="tab" id="tab-cards">
     <div class="cards-toolbar">
-      <div class="hint" style="color:var(--ink-dim);font-size:12.5px;">Cada cartão é uma regra em Gherkin, ligada a um tipo do taxonomy BGE.</div>
+      <div class="hint" style="color:var(--ink-dim);font-size:12.5px;max-width:560px;">Cada cartão é uma regra em Gherkin. Tem um <b>âmbito</b>: regras gerais, restrições do jogador, componentes (ligados a um nó DATA) ou regras de um bloco do fluxo.</div>
       <button class="btn primary" id="newCardBtn">+ Cartão</button>
     </div>
 
@@ -322,6 +408,21 @@
           </select>
         </div>
       </div>
+      <div class="row">
+        <div>
+          <label for="cf-scope">Âmbito</label>
+          <select id="cf-scope">
+            <option value="general">Geral: regra do jogo inteiro</option>
+            <option value="player">Jogador: o que um jogador pode ou não pode</option>
+            <option value="component">Componente: ligado a um nó DATA</option>
+            <option value="node">Bloco: ligado a um nó do fluxo</option>
+          </select>
+        </div>
+        <div id="cf-ref-wrap" hidden>
+          <label for="cf-ref" id="cf-ref-label">Bloco do fluxo</label>
+          <select id="cf-ref"></select>
+        </div>
+      </div>
       <label>Dado que…</label>
       <textarea id="cf-given" rows="2" placeholder="Dado que um jogador acabou de marcar uma casa"></textarea>
       <label>Quando…</label>
@@ -334,8 +435,39 @@
       </div>
     </div>
 
-    <div class="card-grid" id="cardGrid"></div>
+    <div class="cards-filter" id="cardsFilter" role="group" aria-label="Filtrar cartões por âmbito">
+      <button class="chip on" data-scope="all">Todos <span></span></button>
+      <button class="chip" data-scope="general">Gerais <span></span></button>
+      <button class="chip" data-scope="player">Jogador <span></span></button>
+      <button class="chip" data-scope="component">Componentes <span></span></button>
+      <button class="chip" data-scope="node">Por bloco <span></span></button>
+      <select id="cardsNodeFilter" aria-label="Filtrar por bloco"></select>
+    </div>
+    <div class="coverage" id="cardsCoverage"></div>
+    <div id="cardGroups"></div>
+    <div class="empty-state" id="cardsNoMatch" hidden>Nenhum cartão neste filtro.</div>
     <div class="empty-state" id="cardsEmpty">Ainda sem cartões. Cria o primeiro com "+ Cartão".</div>
+  </section>
+
+  <!-- RULES TAB -->
+  <section class="tab" id="tab-rules">
+    <div class="rules-toolbar">
+      <div class="hint">Explica <b>como se joga</b>, um bloco de cada vez. Cada secção ligada a um bloco aparece também no painel desse bloco (separador Fluxo). O documento final junta tudo, pela ordem que vês aqui.</div>
+      <div class="rules-actions">
+        <button class="btn" id="addGeneralSectionBtn">+ Secção geral</button>
+        <label class="check"><input type="checkbox" id="exportCards"> Incluir cartões Gherkin</label>
+        <button class="btn" id="copyMdBtn">Copiar Markdown</button>
+        <button class="btn primary" id="exportMdBtn">Exportar .md</button>
+        <button class="btn primary" id="exportHtmlBtn">Exportar .html</button>
+      </div>
+    </div>
+    <div class="rules-status" id="rulesStatus" role="status" aria-live="polite"></div>
+    <div class="rules-missing" id="rulesMissing"></div>
+    <div id="rulesList"></div>
+    <details class="doc-preview" id="docPreview">
+      <summary>Pré-visualizar o documento</summary>
+      <div class="doc" id="docPreviewBody"></div>
+    </details>
   </section>
 
   <!-- GENERATE TAB -->
@@ -397,9 +529,11 @@
 let state = {
   nodes: [],   // {id, kind, label, x, y}
   edges: [],   // {from, to}
-  cards: [],   // {id, kind, title, given, when, then}
+  cards: [],   // {id, kind, title, given, when, then, scope?, ref?}  scope: general|player|component|node
+  rules: [],   // {id, ref (node id or null), title, text}: sections of the rules document
   commits: []  // {id, ts, gameName, code, cardCount, nodeCount}
 };
+const $ = id => document.getElementById(id);
 // Persistência: usa window.storage quando corre dentro do preview do Claude.ai;
 // faz fallback para localStorage quando o ficheiro é aberto diretamente no browser.
 const storageAdapter = (window.storage && typeof window.storage.get === 'function')
@@ -573,13 +707,135 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    flushSave();
     if(btn.dataset.tab === 'gen') renderSummary();
     if(btn.dataset.tab === 'flow'){ renderFlow(); }
+    if(btn.dataset.tab === 'cards') renderCards();
+    if(btn.dataset.tab === 'rules') renderRules();
   });
 });
 
 if(document.fonts && document.fonts.ready){
   document.fonts.ready.then(()=>{ if(viewTouched){ drawEdges(); drawMinimap(); } else fitView(); });
+}
+
+// ---------- rules model: card scopes, rules-document sections, flow order ----------
+const SCOPES = ['general', 'player', 'component', 'node'];
+const SCOPE_LABEL = {general:'Geral', player:'Jogador', component:'Componente', node:'Bloco'};
+const SCOPE_TITLE = {general:'Regras gerais', player:'Restrições do jogador', component:'Componentes', node:'Por bloco do fluxo'};
+let ruleSeq = 1;
+let cardsFilter = {scope:'all', ref:''};
+let saveTimer = null;
+
+const scopeOf = c => SCOPES.includes(c.scope) ? c.scope : 'general';
+const linksToNode = c => scopeOf(c) === 'node' || scopeOf(c) === 'component';
+const ruleFor = nodeId => state.rules.find(r=>r.ref === nodeId);
+const cardsFor = nodeId => state.cards.filter(c=>linksToNode(c) && c.ref === nodeId);
+
+function resyncSeqs(){
+  const max = (arr)=>arr.reduce((m, x)=>Math.max(m, parseInt(String(x.id || '').slice(1)) || 0), 0);
+  nodeSeq = 1 + max(state.nodes);
+  cardSeq = 1 + max(state.cards);
+  ruleSeq = 1 + max(state.rules);
+}
+
+// edges that close a loop: they point back to something that comes earlier in the flow
+function backEdgeSet(){
+  const ids = state.nodes.map(n=>n.id);
+  const known = new Set(ids);
+  const edges = state.edges.filter(e=>known.has(e.from) && known.has(e.to));
+  const out = Object.fromEntries(ids.map(i=>[i, []]));
+  const indeg = Object.fromEntries(ids.map(i=>[i, 0]));
+  edges.forEach(e=>{ out[e.from].push(e.to); indeg[e.to]++; });
+  const byPos = (a, b)=>nodeById(a).y - nodeById(b).y || nodeById(a).x - nodeById(b).x;
+
+  const bfs = (start, level, base)=>{
+    const queue = [start]; level[start] = base;
+    while(queue.length){
+      const u = queue.shift();
+      out[u].forEach(v=>{ if(level[v] === undefined){ level[v] = level[u]+1; queue.push(v); } });
+    }
+  };
+  const reachable = (from)=>{ const seen = {}; bfs(from, seen, 0); return Object.keys(seen).length; };
+
+  // depth = shortest distance from the main root (the root that reaches most nodes); other roots start at 0
+  const roots = ids.filter(i=>indeg[i] === 0).sort(byPos);
+  const level = {};
+  const main = [...(roots.length ? roots : [...ids].sort(byPos))].sort((a, b)=>reachable(b) - reachable(a) || byPos(a, b))[0];
+  if(main !== undefined) bfs(main, level, 0);
+  roots.forEach(r=>{ if(level[r] === undefined) bfs(r, level, 0); });
+  [...ids].sort(byPos).forEach(i=>{ if(level[i] === undefined) bfs(i, level, 0); });
+
+  const reaches = (from, to)=>{ const seen = {}; bfs(from, seen, 0); return seen[to] !== undefined; };
+  const back = new Set();
+  edges.forEach(e=>{ if(level[e.to] < level[e.from] && reaches(e.to, e.from)) back.add(e.from+'>'+e.to); });
+
+  // a loop between nodes at the same depth is still possible: break it with a depth-first search
+  const adj = Object.fromEntries(ids.map(i=>[i, []]));
+  edges.filter(e=>!back.has(e.from+'>'+e.to)).forEach(e=>adj[e.from].push(e.to));
+  const color = {};
+  const dfs = (u)=>{
+    color[u] = 1;
+    adj[u].forEach(v=>{ if(color[v] === 1) back.add(u+'>'+v); else if(!color[v]) dfs(v); });
+    color[u] = 2;
+  };
+  [...ids].sort(byPos).forEach(i=>{ if(!color[i]) dfs(i); });
+  return back;
+}
+
+// node ids in reading order: by depth in the flow (loop-closing edges ignored), then top-to-bottom, left-to-right
+function flowOrder(){
+  const ids = state.nodes.map(n=>n.id);
+  const back = backEdgeSet();
+  const dag = state.edges.filter(e=>ids.includes(e.from) && ids.includes(e.to) && !back.has(e.from+'>'+e.to));
+  const layer = Object.fromEntries(ids.map(i=>[i, 0]));
+  for(let i = 0; i < ids.length; i++){
+    let changed = false;
+    dag.forEach(e=>{ if(layer[e.to] < layer[e.from]+1){ layer[e.to] = layer[e.from]+1; changed = true; } });
+    if(!changed) break;
+  }
+  // a node nothing points to (e.g. a DATA block) is read just before its first consumer, not at the very start
+  const hasIn = new Set(dag.map(e=>e.to));
+  ids.filter(i=>!hasIn.has(i)).forEach(i=>{
+    const succ = dag.filter(e=>e.from === i).map(e=>layer[e.to]);
+    if(succ.length) layer[i] = Math.max(layer[i], Math.min(...succ)-1);
+  });
+  return [...state.nodes].sort((a, b)=>layer[a.id]-layer[b.id] || a.y-b.y || a.x-b.x).map(n=>n.id);
+}
+
+function nodesInFlowOrder(pred){
+  return flowOrder().map(nodeById).filter(n=>n && (!pred || pred(n)));
+}
+
+function coverage(){
+  const nodeIds = new Set(state.nodes.map(n=>n.id));
+  const withCards = new Set(state.cards.filter(linksToNode).map(c=>c.ref));
+  return {
+    noCards: nodesInFlowOrder(n=>!withCards.has(n.id)),
+    noText: nodesInFlowOrder(n=>!state.rules.some(r=>r.ref === n.id && r.text.trim())),
+    orphanCards: state.cards.filter(c=>linksToNode(c) && (!c.ref || !nodeIds.has(c.ref))),
+    orphanRules: state.rules.filter(r=>r.ref && !nodeIds.has(r.ref)),
+  };
+}
+
+// text edits are saved after a short pause, and immediately on blur / tab change / leaving the page
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ saveTimer = null; saveState(); }, 400);
+  updateSaveIndicator();
+}
+function flushSave(){
+  if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; saveState(); }
+}
+window.addEventListener('beforeunload', flushSave);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') flushSave(); });
+
+function focusNode(id){
+  const n = nodeById(id);
+  if(!n) return;
+  gotoTab('flow');
+  setSelection([id]);
+  ensureVisible(n);
 }
 
 // ---------- flow canvas ----------
@@ -640,6 +896,9 @@ function redo(){
 }
 // called whenever `state` is replaced wholesale (load, import, example, delete)
 function afterStateReplaced(){
+  if(!Array.isArray(state.rules)) state.rules = [];
+  resyncSeqs();
+  cardsFilter = {scope:'all', ref:''};
   undoStack.length = 0; redoStack.length = 0; updateHistoryButtons();
   selection = new Set(); selectedEdge = null; linkFirst = null;
   setLinkMode(false);
@@ -753,18 +1012,7 @@ function refreshSelection(){
     el.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
   drawEdges();
-  updateInspector();
-}
-function updateInspector(){
-  const box = document.getElementById('inspector');
-  const only = selection.size === 1 ? nodeById([...selection][0]) : null;
-  box.hidden = !only;
-  if(!only) return;
-  const li = document.getElementById('insLabel');
-  if(document.activeElement !== li) li.value = only.label;
-  document.getElementById('insKind').value = only.kind;
-  const ins = state.edges.filter(e=>e.to===only.id).length, outs = state.edges.filter(e=>e.from===only.id).length;
-  document.getElementById('insInfo').textContent = 'entradas: '+ins+' · saídas: '+outs;
+  updateBlockPanel();
 }
 function commitLabel(id, value){
   const n = nodeById(id); const v = value.trim().slice(0, 60);
@@ -776,7 +1024,7 @@ function commitLabel(id, value){
 }
 document.getElementById('insLabel').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter'){ e.preventDefault(); e.target.blur(); }
-  if(e.key === 'Escape'){ e.preventDefault(); updateInspector(); e.target.blur(); }
+  if(e.key === 'Escape'){ e.preventDefault(); updateBlockPanel(); e.target.blur(); }
 });
 document.getElementById('insLabel').addEventListener('change', (e)=>{
   if(selection.size === 1) commitLabel([...selection][0], e.target.value);
@@ -815,10 +1063,13 @@ function deleteSelectedNodes(){
   if(!selection.size) return;
   pushHistory();
   const ids = selection;
+  const linkedCards = state.cards.filter(c=>ids.has(c.ref)).length;
+  const linkedRules = state.rules.filter(r=>ids.has(r.ref) && r.text.trim()).length;
   state.nodes = state.nodes.filter(n=>!ids.has(n.id));
   state.edges = state.edges.filter(e=>!ids.has(e.from) && !ids.has(e.to));
   selection = new Set();
   saveState(); renderFlow();
+  if(linkedCards || linkedRules) say('Apagado. '+linkedCards+' cartão(ões) e '+linkedRules+' texto(s) das regras ficaram sem bloco: continuam guardados e voltam a ligar-se se anulares (Ctrl+Z).');
 }
 function deleteSelection(){ if(selectedEdge) deleteSelectedEdge(); else deleteSelectedNodes(); }
 
@@ -910,7 +1161,7 @@ function renderFlow(){
   });
   if(fid){ const f = nodeEl(fid); if(f) f.focus({preventScroll:true}); }
   if(needsFit && canvas.clientWidth){ needsFit = false; fitView(); }
-  drawEdges(); drawMinimap(); updateInspector();
+  drawEdges(); drawMinimap(); updateBlockPanel();
 }
 function render(){ renderFlow(); renderCards(); updateSaveIndicator(); }
 
@@ -1147,17 +1398,9 @@ function autoLayout(){
   const idx = Object.fromEntries(ids.map((id, i)=>[id, i]));
   const edges = state.edges.map(e=>[idx[e.from], idx[e.to]]);
 
-  // edges that close a cycle may point upwards without penalty
-  const out = ids.map(()=>[]), indeg = ids.map(()=>0);
-  edges.forEach(([f, t])=>{ out[f].push(t); indeg[t]++; });
-  const color = new Array(N).fill(0), back = new Set();
-  const dfs = (u)=>{
-    color[u] = 1;
-    out[u].forEach(v=>{ if(color[v] === 1) back.add(u+'>'+v); else if(!color[v]) dfs(v); });
-    color[u] = 2;
-  };
-  for(let i = 0; i < N; i++) if(indeg[i] === 0 && !color[i]) dfs(i);
-  for(let i = 0; i < N; i++) if(!color[i]) dfs(i);
+  // edges that close a loop may point upwards without penalty
+  const back = new Set();
+  backEdgeSet().forEach(k=>{ const [from, to] = k.split('>'); back.add(idx[from]+'>'+idx[to]); });
 
   const w = ids.map(id=>nodeSize(nodeById(id)).w), H = 45, PAD = 4;
   const pitchX = Math.ceil((Math.max(...w) + 48)/GRID)*GRID, pitchY = 96;
@@ -1307,71 +1550,251 @@ function drawEdges(){
 updateHistoryButtons();
 applyView();
 
-// ---------- cards ----------
-const cardForm = document.getElementById('cardForm');
-document.getElementById('newCardBtn').addEventListener('click', ()=>{
-  editingCardId = null;
-  document.getElementById('cf-title').value='';
-  document.getElementById('cf-kind').value='ACTION';
-  document.getElementById('cf-given').value='';
-  document.getElementById('cf-when').value='';
-  document.getElementById('cf-then').value='';
-  cardForm.classList.add('open');
-});
-document.getElementById('cancelCardBtn').addEventListener('click', ()=>cardForm.classList.remove('open'));
+// ---------- block panel (right side of the flow tab) ----------
+function updateBlockPanel(){
+  const only = selection.size === 1 ? nodeById([...selection][0]) : null;
+  const multi = selection.size > 1;
+  const edgeSel = !!selectedEdge && selection.size === 0;
+  $('bpEmpty').hidden = !!(only || multi || edgeSel);
+  $('bpNode').hidden = !only;
+  $('bpMulti').hidden = !multi;
+  $('bpEdge').hidden = !edgeSel;
+  if(multi) $('bpMultiText').textContent = selection.size+' blocos selecionados. Seleciona só um para ver os seus cartões e o texto das regras.';
+  if(edgeSel){
+    const a = nodeById(selectedEdge.from), b = nodeById(selectedEdge.to);
+    $('bpEdgeText').textContent = (a ? a.label : '?')+' → '+(b ? b.label : '?');
+  }
+  if(!only) return;
 
-document.getElementById('saveCardBtn').addEventListener('click', ()=>{
-  const title = document.getElementById('cf-title').value.trim();
-  const kind = document.getElementById('cf-kind').value;
-  const given = document.getElementById('cf-given').value.trim();
-  const when = document.getElementById('cf-when').value.trim();
-  const then = document.getElementById('cf-then').value.trim();
+  const pill = $('bpKind'); pill.textContent = only.kind; pill.dataset.kind = only.kind;
+  const li = $('insLabel'); if(document.activeElement !== li) li.value = only.label;
+  $('insKind').value = only.kind;
+  const ins = state.edges.filter(e=>e.to === only.id).length, outs = state.edges.filter(e=>e.from === only.id).length;
+  $('insInfo').textContent = 'Ligações: '+ins+' a entrar · '+outs+' a sair';
+
+  const cards = cardsFor(only.id);
+  $('bpCardCount').textContent = cards.length ? '('+cards.length+')' : '';
+  const box = $('bpCards'); box.textContent = '';
+  if(!cards.length){
+    const p = document.createElement('p'); p.className = 'bp-none';
+    p.textContent = 'Este bloco ainda não tem cartões Gherkin.';
+    box.appendChild(p);
+  }
+  cards.forEach(c=>{
+    const d = document.createElement('div'); d.className = 'bp-card';
+    const t = document.createElement('div'); t.className = 'bp-card-title'; t.textContent = c.title;
+    d.appendChild(t);
+    [['Dado', c.given], ['Quando', c.when], ['Então', c.then]].forEach(([k, v])=>{
+      const row = document.createElement('div');
+      const b = document.createElement('b'); b.textContent = k+' ';
+      row.append(b, document.createTextNode(v));
+      d.appendChild(row);
+    });
+    const btn = document.createElement('button'); btn.textContent = 'Editar';
+    btn.addEventListener('click', ()=>{ gotoTab('cards'); openCardForm(c); });
+    d.appendChild(btn);
+    box.appendChild(d);
+  });
+  const ta = $('bpRules');
+  if(document.activeElement !== ta) ta.value = (ruleFor(only.id) || {text: ''}).text;
+}
+$('bpRules').addEventListener('input', (e)=>{
+  if(selection.size === 1) setRuleText([...selection][0], e.target.value);
+});
+$('bpRules').addEventListener('blur', flushSave);
+$('bpAddCard').addEventListener('click', ()=>{
+  const n = selection.size === 1 ? nodeById([...selection][0]) : null;
+  if(!n) return;
+  gotoTab('cards');
+  openCardForm(null, {scope: n.kind === 'DATA' ? 'component' : 'node', ref: n.id, kind: n.kind});
+});
+$('bpOpenRules').addEventListener('click', ()=>{ if(selection.size === 1) focusRuleSection([...selection][0]); });
+$('bpDeleteEdge').addEventListener('click', deleteSelectedEdge);
+
+// ---------- cards ----------
+const cardForm = $('cardForm');
+
+function fillRefOptions(scope, selected){
+  const sel = $('cf-ref'); sel.textContent = '';
+  const first = document.createElement('option'); first.value = ''; first.textContent = '— escolhe —';
+  sel.appendChild(first);
+  const nodes = nodesInFlowOrder(scope === 'component' ? n=>n.kind === 'DATA' : null);
+  nodes.forEach(n=>{
+    const o = document.createElement('option'); o.value = n.id; o.textContent = '['+n.kind+'] '+n.label;
+    sel.appendChild(o);
+  });
+  sel.value = nodes.some(n=>n.id === selected) ? selected : '';
+}
+function syncScopeUI(){
+  const s = $('cf-scope').value, need = s === 'node' || s === 'component';
+  $('cf-ref-wrap').hidden = !need;
+  $('cf-ref-label').textContent = s === 'component' ? 'Componente (nó DATA)' : 'Bloco do fluxo';
+  if(need) fillRefOptions(s, $('cf-ref').value);
+}
+function openCardForm(card, preset){
+  editingCardId = card ? card.id : null;
+  const c = card || Object.assign({title:'', kind:'ACTION', given:'', when:'', then:'', scope:'general', ref:''}, preset || {});
+  $('cf-title').value = c.title; $('cf-given').value = c.given; $('cf-when').value = c.when; $('cf-then').value = c.then;
+  const scope = scopeOf(c);
+  $('cf-scope').value = scope;
+  $('cf-ref').value = '';
+  const need = scope === 'node' || scope === 'component';
+  $('cf-ref-wrap').hidden = !need;
+  $('cf-ref-label').textContent = scope === 'component' ? 'Componente (nó DATA)' : 'Bloco do fluxo';
+  if(need) fillRefOptions(scope, c.ref);
+  $('cf-kind').value = c.kind;
+  cardForm.classList.add('open');
+  cardForm.scrollIntoView({block: 'nearest'});
+  $('cf-title').focus({preventScroll: true});
+}
+function presetFromFilter(){
+  const f = cardsFilter;
+  if(f.ref){
+    const n = nodeById(f.ref);
+    if(n) return {scope: n.kind === 'DATA' ? 'component' : 'node', ref: n.id, kind: n.kind};
+  }
+  return f.scope !== 'all' ? {scope: f.scope} : {};
+}
+$('newCardBtn').addEventListener('click', ()=>openCardForm(null, presetFromFilter()));
+$('cancelCardBtn').addEventListener('click', ()=>cardForm.classList.remove('open'));
+$('cf-scope').addEventListener('change', syncScopeUI);
+$('cf-ref').addEventListener('change', ()=>{
+  const n = nodeById($('cf-ref').value);
+  if(n) $('cf-kind').value = n.kind;
+});
+
+$('saveCardBtn').addEventListener('click', ()=>{
+  const title = $('cf-title').value.trim();
+  const kind = $('cf-kind').value;
+  const given = $('cf-given').value.trim();
+  const when = $('cf-when').value.trim();
+  const then = $('cf-then').value.trim();
+  const scope = $('cf-scope').value;
+  const ref = $('cf-ref').value;
   if(!title || !given || !when || !then){ alert('Preenche título, Dado, Quando e Então.'); return; }
+  const need = scope === 'node' || scope === 'component';
+  if(need && !nodeById(ref)){ alert('Escolhe o '+(scope === 'component' ? 'componente (nó DATA)' : 'bloco do fluxo')+' a que este cartão pertence.'); return; }
+  const data = {title, kind, given, when, then, scope};
+  if(need) data.ref = ref;
   if(editingCardId){
-    const c = state.cards.find(c=>c.id===editingCardId);
-    Object.assign(c, {title, kind, given, when, then});
+    const c = state.cards.find(c=>c.id === editingCardId);
+    delete c.ref;
+    Object.assign(c, data);
   } else {
-    state.cards.push({id:'c'+(cardSeq++), title, kind, given, when, then});
+    state.cards.push(Object.assign({id: 'c'+(cardSeq++)}, data));
   }
   cardForm.classList.remove('open');
   saveState(); render();
 });
 
-function renderCards(){
-  const grid = document.getElementById('cardGrid');
-  const empty = document.getElementById('cardsEmpty');
-  grid.innerHTML = '';
-  empty.style.display = state.cards.length ? 'none' : 'block';
+document.querySelectorAll('#cardsFilter .chip').forEach(ch=>{
+  ch.addEventListener('click', ()=>{
+    cardsFilter.scope = ch.dataset.scope;
+    if(cardsFilter.scope === 'general' || cardsFilter.scope === 'player') cardsFilter.ref = '';
+    renderCards();
+  });
+});
+$('cardsNodeFilter').addEventListener('change', (e)=>{
+  cardsFilter.ref = e.target.value;
+  if(cardsFilter.ref && (cardsFilter.scope === 'general' || cardsFilter.scope === 'player')) cardsFilter.scope = 'all';
+  renderCards();
+});
+
+function chipButton(text, title, onClick){
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = text; b.title = title || '';
+  b.addEventListener('click', onClick);
+  return b;
+}
+function renderCoverage(){
+  const el = $('cardsCoverage'); el.textContent = '';
+  if(!state.nodes.length){
+    el.textContent = 'Ainda não há blocos no fluxo. Os cartões gerais e do jogador não precisam de bloco.';
+    return;
+  }
+  const cv = coverage();
+  const span = (cls, txt)=>{ const s = document.createElement('span'); s.className = cls; s.textContent = txt; return s; };
+  if(!cv.noCards.length) el.appendChild(span('ok', '✓ Todos os blocos têm pelo menos um cartão.'));
+  else {
+    el.appendChild(span('warn', 'Blocos sem cartões ('+cv.noCards.length+'), clica para criar um:'));
+    cv.noCards.slice(0, 12).forEach(n=>{
+      el.appendChild(chipButton(n.label, 'Criar um cartão para este bloco', ()=>{
+        cardsFilter = {scope:'all', ref:n.id};
+        renderCards();
+        openCardForm(null, presetFromFilter());
+      }));
+    });
+    if(cv.noCards.length > 12) el.appendChild(span('', '+'+(cv.noCards.length-12)+' outros'));
+  }
+  if(cv.orphanCards.length) el.appendChild(span('warn', '⚠ '+cv.orphanCards.length+' cartão(ões) sem bloco válido.'));
+}
+
+function cardEl(c){
   const colors = {DATA:'var(--data)', FLOW:'var(--flow)', ACTION:'var(--action)', SCORE:'var(--score)'};
-  state.cards.forEach(c=>{
-    const el = document.createElement('div');
-    el.className = 'rule-card';
-    el.innerHTML = `
-      <span class="tag" style="background:${colors[c.kind]}">${c.kind}</span>
-      <p class="title">${escapeHtml(c.title)}</p>
-      <div class="gherkin">
-        <div><b>Dado</b> ${escapeHtml(c.given)}</div>
-        <div><b>Quando</b> ${escapeHtml(c.when)}</div>
-        <div><b>Então</b> ${escapeHtml(c.then)}</div>
-      </div>
-      <div class="card-actions">
-        <button data-act="edit">Editar</button>
-        <button data-act="del">Apagar</button>
-      </div>`;
-    el.querySelector('[data-act="edit"]').addEventListener('click', ()=>{
-      editingCardId = c.id;
-      document.getElementById('cf-title').value = c.title;
-      document.getElementById('cf-kind').value = c.kind;
-      document.getElementById('cf-given').value = c.given;
-      document.getElementById('cf-when').value = c.when;
-      document.getElementById('cf-then').value = c.then;
-      cardForm.classList.add('open');
-    });
-    el.querySelector('[data-act="del"]').addEventListener('click', ()=>{
-      state.cards = state.cards.filter(x=>x.id!==c.id);
-      saveState(); render();
-    });
-    grid.appendChild(el);
+  const sc = scopeOf(c);
+  const node = linksToNode(c) ? nodeById(c.ref) : null;
+  let meta = '<span class="scope-pill">'+SCOPE_LABEL[sc]+'</span>';
+  if(linksToNode(c)) meta += node ? '<span>'+escapeHtml(node.label)+'</span>' : '<span class="missing">⚠ bloco em falta</span>';
+  const el = document.createElement('div');
+  el.className = 'rule-card';
+  el.innerHTML = `
+    <span class="tag" style="background:${colors[c.kind]}">${c.kind}</span>
+    <p class="title">${escapeHtml(c.title)}</p>
+    <div class="meta">${meta}</div>
+    <div class="gherkin">
+      <div><b>Dado</b> ${escapeHtml(c.given)}</div>
+      <div><b>Quando</b> ${escapeHtml(c.when)}</div>
+      <div><b>Então</b> ${escapeHtml(c.then)}</div>
+    </div>
+    <div class="card-actions">
+      <button data-act="edit">Editar</button>
+      ${node ? '<button data-act="goto">Ver no fluxo</button>' : ''}
+      <button data-act="del">Apagar</button>
+    </div>`;
+  el.querySelector('[data-act="edit"]').addEventListener('click', ()=>openCardForm(c));
+  const g = el.querySelector('[data-act="goto"]');
+  if(g) g.addEventListener('click', ()=>focusNode(c.ref));
+  el.querySelector('[data-act="del"]').addEventListener('click', ()=>{
+    state.cards = state.cards.filter(x=>x.id !== c.id);
+    saveState(); render();
+  });
+  return el;
+}
+
+function renderCards(){
+  const counts = {all: state.cards.length};
+  SCOPES.forEach(s=>{ counts[s] = state.cards.filter(c=>scopeOf(c) === s).length; });
+  document.querySelectorAll('#cardsFilter .chip').forEach(ch=>{
+    const on = cardsFilter.scope === ch.dataset.scope;
+    ch.classList.toggle('on', on);
+    ch.setAttribute('aria-pressed', on ? 'true' : 'false');
+    ch.querySelector('span').textContent = counts[ch.dataset.scope];
+  });
+  if(cardsFilter.ref && !nodeById(cardsFilter.ref)) cardsFilter.ref = '';
+  const ns = $('cardsNodeFilter'); ns.textContent = '';
+  const all = document.createElement('option'); all.value = ''; all.textContent = 'Todos os blocos'; ns.appendChild(all);
+  nodesInFlowOrder().forEach(n=>{
+    const o = document.createElement('option'); o.value = n.id; o.textContent = '['+n.kind+'] '+n.label; ns.appendChild(o);
+  });
+  ns.value = cardsFilter.ref;
+  renderCoverage();
+
+  const list = state.cards.filter(c=>(cardsFilter.scope === 'all' || scopeOf(c) === cardsFilter.scope) && (!cardsFilter.ref || c.ref === cardsFilter.ref));
+  $('cardsEmpty').style.display = state.cards.length ? 'none' : 'block';
+  $('cardsNoMatch').hidden = !(state.cards.length && !list.length);
+  const wrap = $('cardGroups'); wrap.textContent = '';
+  const order = flowOrder();
+  const pos = id => { const k = order.indexOf(id); return k < 0 ? 1e9 : k; };
+  SCOPES.forEach(scope=>{
+    const items = list.filter(c=>scopeOf(c) === scope);
+    if(!items.length) return;
+    if(linksToNode({scope})) items.sort((a, b)=>pos(a.ref) - pos(b.ref));
+    const h = document.createElement('h3'); h.className = 'cards-group';
+    h.append(SCOPE_TITLE[scope]+' ');
+    const cnt = document.createElement('span'); cnt.textContent = '('+items.length+')'; h.appendChild(cnt);
+    const grid = document.createElement('div'); grid.className = 'card-grid';
+    items.forEach(c=>grid.appendChild(cardEl(c)));
+    wrap.append(h, grid);
   });
 }
 
@@ -1379,12 +1802,277 @@ function escapeHtml(s){
   return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
+// ---------- rules document (tab 3) ----------
+function insertRuleInOrder(entry){
+  if(!entry.ref){                                     // general sections go after the leading run of general sections
+    let i = 0;
+    while(i < state.rules.length && !state.rules[i].ref) i++;
+    state.rules.splice(i, 0, entry);
+    return;
+  }
+  const order = flowOrder();
+  const idx = id => { const k = order.indexOf(id); return k < 0 ? 1e9 : k; };
+  let at = -1;
+  state.rules.forEach((r, i)=>{ if(r.ref && idx(r.ref) < idx(entry.ref)) at = i; });
+  if(at >= 0){ state.rules.splice(at+1, 0, entry); return; }
+  const firstNode = state.rules.findIndex(r=>r.ref);
+  if(firstNode >= 0) state.rules.splice(firstNode, 0, entry);
+  else state.rules.push(entry);
+}
+function newRule(ref, title, text){
+  const entry = {id: 'r'+(ruleSeq++), ref: ref || null, title: title || '', text: text || ''};
+  insertRuleInOrder(entry);
+  return entry;
+}
+function setRuleText(nodeId, text){
+  let r = ruleFor(nodeId);
+  if(!r){
+    if(!text.trim()) return;
+    r = newRule(nodeId, nodeById(nodeId).label, '');
+  }
+  r.text = text;
+  if(!r.text.trim()) state.rules = state.rules.filter(x=>x !== r);   // an emptied block section disappears
+  scheduleSave();
+}
+function focusRuleSection(nodeId){
+  if(!ruleFor(nodeId)){ const n = nodeById(nodeId); if(n){ newRule(nodeId, n.label, ''); saveState(); } }
+  gotoTab('rules');
+  const r = ruleFor(nodeId);
+  const el = r && $('rulesList').querySelector('[data-id="'+r.id+'"]');
+  if(el){ el.scrollIntoView({block: 'center'}); const ta = el.querySelector('textarea'); if(ta) ta.focus({preventScroll: true}); }
+}
+
+function autosize(ta){ ta.style.height = 'auto'; ta.style.height = Math.max(96, ta.scrollHeight+2)+'px'; }
+function toolBtn(text, title, onClick, disabled){
+  const b = document.createElement('button');
+  b.className = 'btn'; b.textContent = text; b.title = title; b.setAttribute('aria-label', title);
+  b.disabled = !!disabled;
+  b.addEventListener('click', onClick);
+  return b;
+}
+function moveRule(i, d){
+  const j = i+d;
+  if(j < 0 || j >= state.rules.length) return;
+  [state.rules[i], state.rules[j]] = [state.rules[j], state.rules[i]];
+  saveState(); renderRules();
+}
+
+function sectionEl(r, i){
+  const n = r.ref ? nodeById(r.ref) : null;
+  const orphan = !!r.ref && !n;
+  const el = document.createElement('article');
+  el.className = 'rule-section'+(orphan ? ' orphan' : '');
+  el.dataset.id = r.id;
+
+  const head = document.createElement('div'); head.className = 'rs-head';
+  if(n){
+    const pill = document.createElement('span'); pill.className = 'kindpill'; pill.dataset.kind = n.kind; pill.textContent = n.kind;
+    const h = document.createElement('h3'); h.textContent = n.label;
+    head.append(pill, h);
+  } else if(orphan){
+    const h = document.createElement('h3'); h.textContent = r.title || 'Secção';
+    const badge = document.createElement('span'); badge.className = 'rs-badge'; badge.textContent = 'bloco apagado';
+    head.append(h, badge);
+  } else {
+    const t = document.createElement('input'); t.className = 'rs-title'; t.value = r.title; t.maxLength = 120;
+    t.placeholder = 'Título da secção (ex.: Objetivo)'; t.setAttribute('aria-label', 'Título da secção');
+    t.addEventListener('input', ()=>{ r.title = t.value; scheduleSave(); refreshPreviewSoon(); });
+    t.addEventListener('blur', flushSave);
+    head.appendChild(t);
+  }
+  const tools = document.createElement('div'); tools.className = 'rs-tools';
+  tools.appendChild(toolBtn('↑', 'Subir a secção', ()=>moveRule(i, -1), i === 0));
+  tools.appendChild(toolBtn('↓', 'Descer a secção', ()=>moveRule(i, 1), i === state.rules.length-1));
+  if(n) tools.appendChild(toolBtn('Ir ao bloco', 'Ver este bloco no fluxo', ()=>focusNode(n.id)));
+  if(orphan) tools.appendChild(toolBtn('Tornar geral', 'Manter o texto como secção geral', ()=>{ r.ref = null; r.title = r.title || 'Secção'; saveState(); renderRules(); }));
+  tools.appendChild(toolBtn('Apagar', 'Apagar a secção', ()=>{
+    if(r.text.trim() && !confirm('Apagar esta secção e o seu texto?')) return;
+    state.rules = state.rules.filter(x=>x !== r);
+    saveState(); renderRules();
+  }));
+  head.appendChild(tools);
+
+  const ta = document.createElement('textarea');
+  ta.value = r.text;
+  ta.placeholder = n ? 'Explica como se joga este bloco. Deixa uma linha em branco para separar parágrafos; "- " no início da linha faz uma lista.' : 'Escreve o texto desta secção.';
+  ta.setAttribute('aria-label', 'Texto da secção');
+  ta.addEventListener('input', ()=>{ r.text = ta.value; autosize(ta); updateFoot(); scheduleSave(); refreshPreviewSoon(); });
+  ta.addEventListener('blur', flushSave);
+
+  const foot = document.createElement('div'); foot.className = 'rs-foot';
+  function updateFoot(){
+    foot.textContent = '';
+    const words = (r.text.trim().match(/\S+/g) || []).length;
+    const w = document.createElement('span'); w.textContent = words+' palavra'+(words === 1 ? '' : 's'); foot.appendChild(w);
+    if(n){
+      const k = cardsFor(n.id).length;
+      const b = document.createElement('button'); b.className = 'linkbtn';
+      b.textContent = k ? k+' cartão'+(k === 1 ? '' : 's')+' Gherkin neste bloco' : 'Sem cartões Gherkin neste bloco';
+      b.addEventListener('click', ()=>{ cardsFilter = {scope:'all', ref:n.id}; gotoTab('cards'); });
+      foot.appendChild(b);
+    }
+  }
+  updateFoot();
+  el.append(head, ta, foot);
+  setTimeout(()=>autosize(ta), 0);
+  return el;
+}
+
+function renderRulesMissing(){
+  const box = $('rulesMissing'); box.textContent = '';
+  if(!state.nodes.length){ box.textContent = 'Ainda não há blocos no fluxo. Podes já escrever secções gerais.'; return; }
+  const withText = state.nodes.filter(n=>state.rules.some(r=>r.ref === n.id && r.text.trim())).length;
+  const info = document.createElement('span');
+  info.textContent = withText+' de '+state.nodes.length+' blocos têm texto nas regras.';
+  box.appendChild(info);
+  const have = new Set(state.rules.filter(r=>r.ref).map(r=>r.ref));
+  const missing = nodesInFlowOrder(n=>!have.has(n.id));
+  if(!missing.length) return;
+  const lab = document.createElement('span'); lab.className = 'warn'; lab.textContent = 'Blocos sem secção:'; box.appendChild(lab);
+  missing.slice(0, 14).forEach(n=>{
+    box.appendChild(chipButton('+ '+n.label, 'Criar a secção deste bloco', ()=>{
+      newRule(n.id, n.label, ''); saveState(); renderRules(); focusRuleSection(n.id);
+    }));
+  });
+  if(missing.length > 14) box.appendChild(document.createTextNode('+'+(missing.length-14)+' outros'));
+  const all = chipButton('Criar todas ('+missing.length+')', 'Criar uma secção vazia para cada bloco sem secção, pela ordem do fluxo', ()=>{
+    missing.forEach(n=>newRule(n.id, n.label, ''));
+    saveState(); renderRules();
+    $('rulesStatus').textContent = 'Criadas '+missing.length+' secções, pela ordem do fluxo. Escreve o texto de cada uma.';
+  });
+  all.classList.add('on');
+  box.appendChild(all);
+}
+
+function renderRules(){
+  state.rules.forEach(r=>{ const n = r.ref && nodeById(r.ref); if(n) r.title = n.label; });   // keep the cached title of block sections current
+  const list = $('rulesList'); list.textContent = '';
+  if(!state.rules.length){
+    const p = document.createElement('div'); p.className = 'empty-state';
+    p.textContent = 'Ainda sem texto. Cria uma secção geral (ex.: Objetivo) ou uma secção por bloco, e escreve como se joga.';
+    list.appendChild(p);
+  }
+  state.rules.forEach((r, i)=>list.appendChild(sectionEl(r, i)));
+  renderRulesMissing();
+  refreshPreview();
+}
+
+$('addGeneralSectionBtn').addEventListener('click', ()=>{
+  const r = newRule(null, '', '');
+  saveState(); renderRules();
+  const t = $('rulesList').querySelector('[data-id="'+r.id+'"] .rs-title');
+  if(t){ t.scrollIntoView({block: 'center'}); t.focus({preventScroll: true}); }
+});
+
+// ----- export: one document (Markdown or standalone HTML) -----
+function docSections(includeCards){
+  const secs = [];
+  state.rules.forEach(r=>{
+    const text = r.text.trim();
+    if(!text) return;
+    const n = r.ref ? nodeById(r.ref) : null;
+    secs.push({title: (n ? n.label : (r.title || '').trim()) || 'Secção', text, cards: includeCards && n ? cardsFor(n.id) : []});
+  });
+  const extra = includeCards ? state.cards.filter(c=>scopeOf(c) === 'general' || scopeOf(c) === 'player') : [];
+  return {secs, extra};
+}
+const gherkinLine = c => 'Dado '+c.given+'. Quando '+c.when+'. Então '+c.then+'.';
+function docName(){ return $('gameName').value.trim() || 'Jogo'; }
+
+function buildMarkdown(includeCards){
+  const {secs, extra} = docSections(includeCards);
+  let md = '# '+docName()+'\n\n';
+  secs.forEach(s=>{
+    md += '## '+s.title+'\n\n'+s.text+'\n\n';
+    if(s.cards.length) md += '**Regras (Gherkin)**\n\n'+s.cards.map(c=>'- **'+c.title+'**: '+gherkinLine(c)).join('\n')+'\n\n';
+  });
+  if(extra.length) md += '## Anexo: regras gerais e restrições do jogador\n\n'+extra.map(c=>'- ['+SCOPE_LABEL[scopeOf(c)]+'] **'+c.title+'**: '+gherkinLine(c)).join('\n')+'\n\n';
+  return md.trimEnd()+'\n';
+}
+
+function inlineMd(s){
+  return escapeHtml(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^\w*])\*([^*\s][^*]*?)\*(?![\w*])/g, '$1<em>$2</em>');
+}
+function mdLite(text){
+  return text.trim().split(/\n{2,}/).map(block=>{
+    const lines = block.split('\n');
+    if(lines.every(l=>/^\s*[-*] /.test(l))) return '<ul>'+lines.map(l=>'<li>'+inlineMd(l.replace(/^\s*[-*] /, ''))+'</li>').join('')+'</ul>';
+    return '<p>'+lines.map(inlineMd).join('<br>')+'</p>';
+  }).join('\n');
+}
+function buildDocBody(includeCards){
+  const {secs, extra} = docSections(includeCards);
+  let h = '<h1>'+escapeHtml(docName())+'</h1>\n';
+  secs.forEach(s=>{
+    h += '<section>\n<h2>'+escapeHtml(s.title)+'</h2>\n'+mdLite(s.text)+'\n';
+    if(s.cards.length) h += '<div class="doc-cards"><p><strong>Regras (Gherkin)</strong></p><ul>'+s.cards.map(c=>'<li><strong>'+escapeHtml(c.title)+':</strong> '+escapeHtml(gherkinLine(c))+'</li>').join('')+'</ul></div>\n';
+    h += '</section>\n';
+  });
+  if(extra.length) h += '<section>\n<h2>Anexo: regras gerais e restrições do jogador</h2>\n<div class="doc-cards"><ul>'+extra.map(c=>'<li>['+SCOPE_LABEL[scopeOf(c)]+'] <strong>'+escapeHtml(c.title)+':</strong> '+escapeHtml(gherkinLine(c))+'</li>').join('')+'</ul></div>\n</section>\n';
+  return h;
+}
+function buildHtmlDocument(includeCards){
+  const css = 'body{margin:0;background:#fff;color:#222;font-family:Georgia,"Times New Roman",serif;line-height:1.6;}'+
+    'main{max-width:780px;margin:0 auto;padding:40px 24px 60px;}h1{font-size:32px;margin:0 0 18px;}'+
+    'h2{font-size:22px;margin:28px 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px;page-break-after:avoid;}'+
+    'p{margin:0 0 12px;}ul{margin:0 0 12px;padding-left:24px;}.doc-cards{font-size:.92em;color:#444;}'+
+    'footer{margin-top:40px;font-size:12px;color:#888;}@media print{main{padding:0;}section{page-break-inside:avoid;}}';
+  return '<!DOCTYPE html>\n<html lang="pt-PT">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>'+escapeHtml(docName())+' - Regras</title>\n<style>'+css+'</style>\n</head>\n<body>\n<main>\n'+
+    buildDocBody(includeCards)+'<footer>Documento gerado com o Bitnik Rule Forge em '+new Date().toLocaleDateString('pt-PT')+'.</footer>\n</main>\n</body>\n</html>\n';
+}
+
+function downloadText(text, filename, mime){
+  const url = URL.createObjectURL(new Blob([text], {type: mime}));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function exportDoc(kind){
+  const st = $('rulesStatus');
+  const {secs} = docSections(false);
+  if(!secs.length){ st.textContent = 'Ainda não há texto nas regras para exportar. Escreve pelo menos uma secção.'; return; }
+  const inc = $('exportCards').checked;
+  const skipped = state.rules.length - secs.length;
+  const base = slugify(docName())+'-regras';
+  if(kind === 'md') downloadText(buildMarkdown(inc), base+'.md', 'text/markdown');
+  else downloadText(buildHtmlDocument(inc), base+'.html', 'text/html');
+  st.textContent = 'Exportado '+base+'.'+kind+' com '+secs.length+' secç'+(secs.length === 1 ? 'ão' : 'ões')+(skipped ? ' ('+skipped+' sem texto ficaram de fora)' : '')+'.';
+}
+$('exportMdBtn').addEventListener('click', ()=>exportDoc('md'));
+$('exportHtmlBtn').addEventListener('click', ()=>exportDoc('html'));
+$('copyMdBtn').addEventListener('click', async ()=>{
+  const st = $('rulesStatus');
+  if(!docSections(false).secs.length){ st.textContent = 'Ainda não há texto nas regras para copiar.'; return; }
+  try{ await navigator.clipboard.writeText(buildMarkdown($('exportCards').checked)); st.textContent = 'Markdown copiado.'; }
+  catch(e){ st.textContent = 'Não consegui copiar automaticamente: usa "Exportar .md".'; }
+});
+$('exportCards').addEventListener('change', refreshPreview);
+
+// live preview of the combined document
+let previewTimer = null;
+function refreshPreview(){
+  if(!$('docPreview').open) return;
+  $('docPreviewBody').innerHTML = docSections(false).secs.length
+    ? buildDocBody($('exportCards').checked)
+    : '<p><em>O documento aparece aqui à medida que escreves.</em></p>';
+}
+function refreshPreviewSoon(){
+  if(!$('docPreview').open) return;
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(refreshPreview, 250);
+}
+$('docPreview').addEventListener('toggle', refreshPreview);
+
 // ---------- generate & review ----------
 function renderSummary(){
   const s = document.getElementById('genSummary');
   s.innerHTML = `<b>${escapeHtml(document.getElementById('gameName').value || 'Jogo Dummy')}</b> —
-    ${state.nodes.length} nós de fluxo, ${state.edges.length} ligações, ${state.cards.length} cartões de lógica.
-    ${state.cards.length===0 ? ' Cria pelo menos um cartão antes de gerar.' : ''}`;
+    ${state.nodes.length} nós de fluxo, ${state.edges.length} ligações, ${state.cards.length} cartões de lógica, ${state.rules.filter(r=>r.text.trim()).length} secções de regras com texto.
+    ${state.cards.length===0 ? ' Cria pelo menos um cartão antes de gerar.' : ''}
+    ${(()=>{ const n = coverage().noCards.length; return n ? ' <span style="color:#e0a97b">⚠ '+n+' bloco(s) sem cartões: o AI vai ter de adivinhar essas regras.</span>' : ''; })()}`;
   document.getElementById('promptOut').value = buildPrompt();
 }
 
@@ -1393,11 +2081,41 @@ function buildPrompt(){
   const nodeName = id => { const n = state.nodes.find(n=>n.id===id); return n ? n.label+' ('+id+')' : id; };
   const nodesTxt = state.nodes.map(n=>`- [${n.kind}] ${n.label} (id:${n.id})`).join('\n') || '(sem nós definidos)';
   const edgesTxt = state.edges.map(e=>`- ${nodeName(e.from)} -> ${nodeName(e.to)}`).join('\n') || '(sem ligações)';
-  const cardsTxt = state.cards.map(c=>
-`Cartão "${c.title}" [${c.kind}]
+  const cardBlock = c=>
+`Cartão "${c.title}" [${c.kind}] (${c.id})
   Dado ${c.given}
   Quando ${c.when}
-  Então ${c.then}`).join('\n\n') || '(sem cartões)';
+  Então ${c.then}`;
+  // cards grouped by scope; component/block cards grouped under the node they belong to, in flow order
+  const order = flowOrder();
+  const pos = id => { const k = order.indexOf(id); return k < 0 ? 1e9 : k; };
+  const groups = [];
+  SCOPES.forEach(scope=>{
+    const list = state.cards.filter(c=>scopeOf(c) === scope);
+    if(!list.length) return;
+    if(scope === 'general' || scope === 'player'){
+      groups.push('## '+SCOPE_TITLE[scope]+'\n'+list.map(cardBlock).join('\n\n'));
+      return;
+    }
+    const byNode = {};
+    list.forEach(c=>{ (byNode[c.ref || ''] = byNode[c.ref || ''] || []).push(c); });
+    const parts = Object.keys(byNode).sort((a, b)=>pos(a) - pos(b)).map(k=>{
+      const n = state.nodes.find(n=>n.id === k);
+      const head = n ? (scope === 'component' ? 'Componente' : 'Bloco')+' "'+n.label+'" ['+n.kind+'] (id:'+n.id+')' : '(sem bloco válido)';
+      return head+'\n'+byNode[k].map(cardBlock).join('\n\n');
+    });
+    groups.push('## '+SCOPE_TITLE[scope]+'\n'+parts.join('\n\n'));
+  });
+  const cardsTxt = groups.join('\n\n') || '(sem cartões)';
+  const rulesTxt = state.rules.filter(r=>r.text.trim()).map(r=>{
+    const n = r.ref ? state.nodes.find(n=>n.id === r.ref) : null;
+    return '## '+(n ? n.label+' (id:'+n.id+')' : (r.title.trim() || 'Secção'))+'\n'+r.text.trim();
+  }).join('\n\n');
+  const rulesSection = rulesTxt ? `# REGRAS EXPLICADAS PELO DESIGNER
+Texto de apoio para perceberes como o jogo se joga e qual é a intenção de cada parte. Se alguma coisa contradisser os cartões Gherkin, os cartões mandam.
+${rulesTxt}
+
+` : '';
 
   return `# PAPEL
 És um programador de protótipos de jogos de tabuleiro no motor Bitnik Studio (BGE).
@@ -1421,14 +2139,15 @@ ${nodesTxt}
 Ligações (A -> B significa que B vem depois de A):
 ${edgesTxt}
 
-# REGRAS (cartões Gherkin)
+${rulesSection}# REGRAS (cartões Gherkin)
+Cada cartão indica o seu âmbito: regras gerais do jogo, restrições do jogador, componentes (ligados a um nó DATA) ou regras de um bloco do fluxo.
 ${cardsTxt}
 
 # REQUISITOS DE IMPLEMENTAÇÃO
 1. Um único ficheiro HTML válido e autocontido.
 2. Respeita a ordem do fluxo: uma ação só é permitida na fase certa (nós FLOW) e só depois dos nós que a precedem.
 3. Interface mínima mas jogável: estado do jogo sempre visível (nós DATA), botões para cada ação (nós ACTION), e o resultado das regras SCORE mostrado de forma clara (pontos, tokens, cartas).
-4. Comenta o código a indicar a que nó/cartão cada bloco corresponde (ex: // ACTION c2: <título do cartão>).
+4. Comenta o código a indicar a que bloco (id do nó) e cartão cada parte corresponde (ex: // ACTION n5 · c2: <título do cartão>).
 5. Se uma regra for ambígua, assume a interpretação mais simples e regista-a num comentário "// ASSUNÇÃO: ..." — não faças perguntas.
 
 # FORMATO DE SAÍDA
@@ -1586,6 +2305,21 @@ function validateProject(d){
   for(const c of d.cards){
     if(!c || !/^c\d+$/.test(c.id) || !KINDS.includes(c.kind) || ['title','given','when','then'].some(k => typeof c[k] !== 'string'))
       return 'cartão inválido ('+JSON.stringify(c).slice(0,60)+').';
+    if(c.scope !== undefined && !SCOPES.includes(c.scope)) return 'âmbito inválido no cartão '+c.id+'.';
+    if(c.ref !== undefined && !/^n\d+$/.test(c.ref)) return 'referência de bloco inválida no cartão '+c.id+'.';
+  }
+  // a reference to a block that is not in the file is allowed (it shows up as "bloco em falta")
+  if(d.rules !== undefined){
+    if(!Array.isArray(d.rules)) return '"rules" tem de ser uma lista.';
+    const rids = new Set(), refs = new Set();
+    for(const r of d.rules){
+      if(!r || !/^r\d+$/.test(r.id) || typeof r.text !== 'string' || r.text.length > 50000 || typeof r.title !== 'string' || r.title.length > 200 ||
+         !(r.ref === null || (typeof r.ref === 'string' && /^n\d+$/.test(r.ref))))
+        return 'secção de regras inválida ('+JSON.stringify(r).slice(0,60)+').';
+      if(rids.has(r.id)) return 'id de secção repetido ('+r.id+').';
+      rids.add(r.id);
+      if(r.ref){ if(refs.has(r.ref)) return 'há duas secções para o mesmo bloco ('+r.ref+').'; refs.add(r.ref); }
+    }
   }
   return null;
 }
@@ -1611,13 +2345,17 @@ document.getElementById('importFile').addEventListener('change', async (ev)=>{
     gameName: name,
     nodes: data.nodes.map(({id,kind,label,x,y}) => ({id,kind,label,x,y})),
     edges: data.edges.map(({from,to}) => ({from,to})),
-    cards: data.cards.map(({id,kind,title,given,when,then}) => ({id,kind,title,given,when,then})),
+    cards: data.cards.map(({id,kind,title,given,when,then,scope,ref}) => {
+      const c = {id,kind,title,given,when,then};
+      if(scope !== undefined) c.scope = scope;
+      if(ref !== undefined) c.ref = ref;
+      return c;
+    }),
+    rules: (data.rules || []).map(({id,ref,title,text}) => ({id,ref,title,text})),
     commits: []
   };
   currentSlug = slug;
   afterStateReplaced();
-  nodeSeq = 1 + state.nodes.reduce((m,n)=>Math.max(m, parseInt(n.id.slice(1))||0), 0);
-  cardSeq = 1 + state.cards.reduce((m,c)=>Math.max(m, parseInt(c.id.slice(1))||0), 0);
   document.getElementById('gameName').value = name;
   await storageAdapter.set(projectKey(slug), JSON.stringify(state), false);
   await bumpIndex(slug, name);
@@ -1629,14 +2367,14 @@ document.getElementById('importFile').addEventListener('change', async (ev)=>{
 
 document.getElementById('exportBtn').addEventListener('click', ()=>{
   const name = document.getElementById('gameName').value || 'Jogo Dummy';
-  const data = {gameName: name, nodes: state.nodes, edges: state.edges, cards: state.cards};
+  const data = {gameName: name, nodes: state.nodes, edges: state.edges, cards: state.cards, rules: state.rules};
   const blob = new Blob([JSON.stringify(data, null, 2)+'\n'], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = slugify(name)+'.json';
   a.click();
   URL.revokeObjectURL(url);
-  document.getElementById('projectStatus').textContent = 'Exportado '+a.download+' (fluxo e cartões; o histórico de commits não é incluído).';
+  document.getElementById('projectStatus').textContent = 'Exportado '+a.download+' (fluxo, cartões e texto das regras; o histórico de commits não é incluído).';
 });
 
 // ---------- Tic Tac Toe example ----------
@@ -1660,46 +2398,77 @@ async function loadTicTacToeExample(skipConfirm){
     {from:'n7', to:'n8'}, {from:'n7', to:'n9'}, {from:'n9', to:'n4'}
   ];
   const cards = [
-    {id:'c1', kind:'DATA', title:'Tabuleiro inicial',
-      given:'que começa um novo jogo',
-      when:'o tabuleiro é criado',
-      then:'as 9 casas estão vazias e o jogador atual é X'},
-    {id:'c2', kind:'ACTION', title:'Marcar casa livre',
+    {id:'c1', kind:'DATA', scope:'component', ref:'n2', title:'Tabuleiro',
+      given:'que se consulta o tabuleiro',
+      when:'o jogo está em curso',
+      then:'tem 9 casas, em 3 linhas e 3 colunas, e cada casa está vazia, com X ou com O'},
+    {id:'c2', kind:'ACTION', scope:'node', ref:'n5', title:'Marcar casa livre',
       given:'que é o turno do jogador atual e a casa escolhida está vazia',
       when:'o jogador clica nessa casa',
       then:'a casa fica marcada com o símbolo do jogador atual (X ou O)'},
-    {id:'c3', kind:'ACTION', title:'Casa ocupada é inválida',
+    {id:'c3', kind:'ACTION', scope:'node', ref:'n5', title:'Casa ocupada é inválida',
       given:'que a casa escolhida já está marcada',
       when:'o jogador clica nessa casa',
       then:'a jogada é rejeitada, nada muda e o turno continua a ser do mesmo jogador'},
-    {id:'c4', kind:'SCORE', title:'Vitória com 3 em linha',
+    {id:'c4', kind:'SCORE', scope:'node', ref:'n6', title:'Vitória com 3 em linha',
       given:'que um jogador acabou de marcar uma casa',
       when:'esse jogador tem 3 símbolos iguais numa linha, coluna ou diagonal',
       then:'esse jogador vence e o jogo termina'},
-    {id:'c5', kind:'SCORE', title:'Empate',
+    {id:'c5', kind:'SCORE', scope:'node', ref:'n7', title:'Empate',
       given:'que um jogador acabou de marcar uma casa e ninguém venceu',
       when:'as 9 casas estão preenchidas',
       then:'o jogo termina empatado'},
-    {id:'c6', kind:'FLOW', title:'Alternar turnos',
+    {id:'c6', kind:'FLOW', scope:'node', ref:'n9', title:'Alternar turnos',
       given:'que um jogador acabou de marcar uma casa e o jogo não terminou',
       when:'a jogada é validada',
       then:'a vez passa ao outro jogador (X passa a O e O passa a X)'},
-    {id:'c7', kind:'FLOW', title:'Jogo terminado bloqueia jogadas',
+    {id:'c7', kind:'FLOW', scope:'node', ref:'n8', title:'Jogo terminado bloqueia jogadas',
       given:'que o jogo terminou por vitória ou empate',
       when:'um jogador tenta marcar uma casa',
-      then:'a jogada é ignorada e o resultado mantém-se'}
+      then:'a jogada é ignorada e o resultado mantém-se'},
+    {id:'c8', kind:'FLOW', scope:'node', ref:'n1', title:'Início da partida',
+      given:'que os dois jogadores estão prontos',
+      when:'a partida começa',
+      then:'o tabuleiro fica vazio e o jogador X joga primeiro'},
+    {id:'c9', kind:'DATA', scope:'component', ref:'n3', title:'Jogador atual',
+      given:'que o jogo está em curso',
+      when:'se consulta quem joga',
+      then:'há sempre exatamente um jogador atual, X ou O'},
+    {id:'c10', kind:'FLOW', scope:'node', ref:'n4', title:'Um turno, uma jogada',
+      given:'que o jogo não terminou',
+      when:'é o turno de um jogador',
+      then:'só esse jogador pode marcar uma casa, e só uma casa por turno'},
+    {id:'c11', kind:'DATA', scope:'general', title:'Dois jogadores',
+      given:'que uma partida vai começar',
+      when:'se formam os jogadores',
+      then:'jogam exatamente dois jogadores: um com X e outro com O'},
+    {id:'c12', kind:'ACTION', scope:'player', title:'Um jogador só joga no seu turno',
+      given:'que é o turno de um jogador',
+      when:'o outro jogador tenta marcar uma casa',
+      then:'a jogada é ignorada'}
+  ];
+  const rules = [
+    {id:'r1', ref:null, title:'Objetivo', text:'Dois jogadores, **X** e **O**, jogam à vez num tabuleiro de 3x3 casas. Ganha quem primeiro tiver três símbolos iguais em linha, na horizontal, na vertical ou na diagonal. Se as nove casas ficarem preenchidas e ninguém venceu, é empate.'},
+    {id:'r2', ref:'n1', title:'Início de jogo', text:'O jogo começa com o tabuleiro vazio. O jogador X joga primeiro.'},
+    {id:'r3', ref:'n2', title:'Tabuleiro 3x3 (9 casas)', text:'O tabuleiro tem 9 casas, em 3 linhas e 3 colunas. Cada casa está vazia ou tem um X ou um O.'},
+    {id:'r4', ref:'n3', title:'Jogador atual (X ou O)', text:'Em cada momento há um jogador atual, X ou O, e só esse jogador pode jogar.'},
+    {id:'r5', ref:'n4', title:'Turno do jogador', text:'Em cada turno o jogador atual faz exatamente uma jogada: marca uma casa livre.'},
+    {id:'r6', ref:'n5', title:'Jogador marca uma casa livre', text:'Escolhe uma casa vazia e clica nela para a marcar com o teu símbolo.\n\nNão podes marcar uma casa que já esteja ocupada: se tentares, a jogada é ignorada e continuas a ser tu a jogar.'},
+    {id:'r7', ref:'n6', title:'Verificar 3 em linha', text:'Depois de cada jogada verifica-se se o jogador que acabou de jogar tem três símbolos iguais numa linha, coluna ou diagonal. Se sim, esse jogador **vence** e o jogo termina.'},
+    {id:'r8', ref:'n7', title:'Verificar empate', text:'Se ninguém venceu e as nove casas estão preenchidas, o jogo termina **empatado**.'},
+    {id:'r9', ref:'n9', title:'Passar a vez ao outro jogador', text:'Se o jogo não terminou, a vez passa ao outro jogador: X passa a O e O passa a X.'},
+    {id:'r10', ref:'n8', title:'Fim de jogo', text:'Quando o jogo termina, por vitória ou empate, já não se pode marcar mais casas e o resultado mantém-se.'}
   ];
   if(!skipConfirm){
     if(!confirmDiscardUnsaved()) return;
     let stored = null;
     try{ const r = await storageAdapter.get(projectKey(slug), false); stored = r && r.value ? JSON.parse(r.value) : null; }catch(e){}
-    const same = stored && JSON.stringify({nodes:stored.nodes, edges:stored.edges, cards:stored.cards}) === JSON.stringify({nodes, edges, cards});
+    const same = stored && JSON.stringify({nodes:stored.nodes, edges:stored.edges, cards:stored.cards, rules:stored.rules || []}) === JSON.stringify({nodes, edges, cards, rules});
     if(stored && !same && !confirm('Já tens o projeto "'+name+'" guardado, com alterações tuas. Carregar o exemplo substitui-o pelo original e perdes essas alterações. Continuar?')) return;
   }
-  state = {gameName: name, nodes, edges, cards, commits: []};
+  state = {gameName: name, nodes, edges, cards, rules, commits: []};
   afterStateReplaced();
   currentSlug = slug;
-  nodeSeq = 10; cardSeq = 8;
   document.getElementById('gameName').value = name;
   await storageAdapter.set(projectKey(slug), JSON.stringify(state), false);
   await bumpIndex(slug, name);
@@ -1713,7 +2482,6 @@ async function loadTicTacToeExample(skipConfirm){
 const ONBOARD_KEY = 'bitnik-rule-forge:onboarding';
 const GUIDE_URL = 'https://github.com/dferreiramarques/bitnik-logic/blob/main/docs/GUIA.md';
 const EXAMPLE_SLUG = 'tic-tac-toe-exemplo';
-const $ = id => document.getElementById(id);
 
 // trusted static strings (no user input), shared by the canvas footer and the help dialog
 const SHORTCUTS = [
@@ -1734,7 +2502,7 @@ const shortcutRows = SHORTCUTS.map(([k, d])=>'<tr><td>'+k+'</td><td>'+d+'</td></
 $('shortcutsBody').innerHTML = shortcutRows;
 
 // ----- unsaved work: indicator, leave warning, confirmations -----
-function hasUnsavedWork(){ return !currentSlug && (state.nodes.length > 0 || state.cards.length > 0); }
+function hasUnsavedWork(){ return !currentSlug && (state.nodes.length > 0 || state.cards.length > 0 || state.rules.length > 0); }
 function confirmDiscardUnsaved(){
   return !hasUnsavedWork() || confirm('Tens trabalho por guardar. Se continuares, perdes esse trabalho (usa "Guardar como…" antes se o quiseres manter). Continuar?');
 }
@@ -1752,8 +2520,9 @@ const HELP_HTML = `
 <ol>
   <li>Carrega em <b>Exemplo: Tic Tac Toe</b> para veres um projeto completo (ou faz o <b>Tour</b>).</li>
   <li><b>1 · Fluxo</b>: arrasta os nós, liga-os e experimenta <b>Organizar</b>.</li>
-  <li><b>2 · Cartões de Lógica</b>: lê os cartões e cria um com <b>+ Cartão</b>.</li>
-  <li><b>3 · Gerar &amp; Rever</b>: <b>Copiar prompt para o teu AI</b>, cola o HTML que ele devolver na caixa, descarrega e joga.</li>
+  <li><b>2 · Cartões de Lógica</b>: lê os cartões, filtra por âmbito e cria um com <b>+ Cartão</b>.</li>
+  <li><b>3 · Regras</b>: escreve como se joga, um texto por bloco, e exporta o documento em .md ou .html.</li>
+  <li><b>4 · Gerar &amp; Rever</b>: <b>Copiar prompt para o teu AI</b>, cola o HTML que ele devolver na caixa, descarrega e joga.</li>
   <li>Quando o protótipo se portar bem: marca <b>Revi o código</b> e faz <b>Commit às regras</b>. Usa <b>Guardar</b> para não perderes o trabalho.</li>
 </ol>
 
@@ -1764,6 +2533,16 @@ const HELP_HTML = `
   <tr><td><b>FLOW</b></td><td>Sequência, turnos e fases: quando algo pode acontecer.</td><td>Início de jogo, Turno do jogador</td></tr>
   <tr><td><b>ACTION</b></td><td>Jogadas do jogador ou do sistema: o gatilho (cláusula "Quando").</td><td>Jogador marca uma casa livre</td></tr>
   <tr><td><b>SCORE</b></td><td>Efeitos e pontuação: a consequência (cláusula "Então").</td><td>Verificar 3 em linha</td></tr>
+</table>
+
+<h3>Como tudo se liga ao bloco</h3>
+<p>Cada <b>bloco</b> do fluxo pode ter <b>cartões Gherkin</b> (as regras exatas) e um <b>texto nas regras</b> (o parágrafo que o explica). Selecionas o bloco no canvas e vês as duas coisas no painel à direita.</p>
+<table>
+  <tr><th>Âmbito do cartão</th><th>Para quê</th></tr>
+  <tr><td><b>Geral</b></td><td>Regras do jogo inteiro (número de jogadores, condição de vitória…).</td></tr>
+  <tr><td><b>Jogador</b></td><td>O que um jogador pode ou não pode fazer (informação escondida, limites de jogadas…).</td></tr>
+  <tr><td><b>Componente</b></td><td>Ligado a um nó DATA: o baralho, o tabuleiro, um token.</td></tr>
+  <tr><td><b>Bloco</b></td><td>Regras de um bloco do fluxo (uma jogada, uma fase, uma pontuação).</td></tr>
 </table>
 
 <h3>Escrever um bom cartão</h3>
@@ -1784,8 +2563,10 @@ const HELP_HTML = `
 <details><summary>O AI devolveu o código com texto à volta, ou cortado</summary><p>Cola na mesma: o markdown e o texto antes de &lt;!DOCTYPE&gt; e depois de &lt;/html&gt; são removidos. Se o código vier cortado a meio, pede ao AI para continuar ou usa um modelo com respostas mais longas.</p></details>
 <details><summary>O protótipo não cumpre uma regra</summary><p>Torna o cartão mais concreto e gera de novo. Procura no código os comentários <code>// ASSUNÇÃO</code>: mostram onde o AI teve de adivinhar.</p></details>
 <details><summary>Não consigo ligar dois nós</summary><p>Ligações duplicadas ou de um nó a si próprio são recusadas; a razão aparece por cima do canvas.</p></details>
-<details><summary>"Importar" falha</summary><p>O ficheiro tem de ser .json com <code>nodes</code>, <code>edges</code> e <code>cards</code>, ids do tipo <code>n1</code> / <code>c1</code>, e ligações só entre nós que existem. A mensagem junto aos botões diz o que está mal.</p></details>
+<details><summary>"Importar" falha</summary><p>O ficheiro tem de ser .json com <code>nodes</code>, <code>edges</code> e <code>cards</code> (e, opcionalmente, <code>rules</code>), ids do tipo <code>n1</code> / <code>c1</code> / <code>r1</code>, e ligações só entre nós que existem. A mensagem junto aos botões diz o que está mal.</p></details>
 <details><summary>"Organizar" deixou ligações por trás de nós</summary><p>Acontece em grafos densos. Arrasta os nós para ajustar, ou <kbd>Ctrl</kbd>+<kbd>Z</kbd> para anular.</p></details>
+<details><summary>Apaguei um bloco: e os cartões e o texto das regras?</summary><p>Não se perdem: ficam marcados como "bloco em falta" nos Cartões e como "bloco apagado" nas Regras. Se anulares (<kbd>Ctrl</kbd>+<kbd>Z</kbd>), voltam a ligar-se ao bloco. Também os podes voltar a ligar a outro bloco ou tornar gerais.</p></details>
+<details><summary>Como exporto o documento de regras?</summary><p>No separador <b>3 · Regras</b>: <b>Exportar .md</b> ou <b>Exportar .html</b> (o HTML imprime-se para PDF a partir do browser). As secções sem texto ficam de fora.</p></details>
 <details><summary>Apaguei um cartão sem querer</summary><p>Os cartões não têm "anular". Se tinhas uma cópia exportada, importa-a como novo projeto.</p></details>
 
 <div class="help-links">
@@ -1816,21 +2597,20 @@ $('onboardClose').addEventListener('click', ()=>markOnboarded('dismissed'));
 // ----- guided tour -----
 const gotoTab = name => document.querySelector('.tab-btn[data-tab="'+name+'"]').click();
 const nextFrame = () => new Promise(r=>setTimeout(r, 40));   // timer, not rAF: rAF stalls while the page is not being painted
-let tourWillLoad = false;   // the welcome step will load the example, so node-dependent steps are not skipped
-const tourEmpty = () => state.nodes.length === 0 && !tourWillLoad;
 
 const TOUR = [
   { title: 'Bem-vindo ao Rule Forge', tab: 'flow', target: null, offerExample: true,
-    body: '<p>Transforma as regras de um jogo num protótipo jogável em <b>3 passos</b>:</p>'+
-          '<ol><li><b>Fluxo</b>: desenha como o jogo funciona.</li><li><b>Cartões de Lógica</b>: escreve as regras em Gherkin (Dado / Quando / Então).</li><li><b>Gerar &amp; Rever</b>: pede a um AI o protótipo, revê e guarda a versão.</li></ol>'+
-          '<p>O tour demora cerca de 3 minutos. Podes sair quando quiseres com <kbd>Esc</kbd> e usar as setas <kbd>←</kbd> <kbd>→</kbd> para navegar.</p>' },
+    body: '<p>Transforma as regras de um jogo num documento de regras e num protótipo jogável, em <b>4 passos</b>:</p>'+
+          '<ol><li><b>Fluxo</b>: desenha como o jogo funciona, em blocos.</li><li><b>Cartões de Lógica</b>: escreve as regras exatas em Gherkin (Dado / Quando / Então).</li><li><b>Regras</b>: explica como se joga, um texto por bloco, e exporta o documento.</li><li><b>Gerar &amp; Rever</b>: pede a um AI o protótipo, revê e guarda a versão.</li></ol>'+
+          '<p>O tour demora cerca de 4 minutos. Podes sair quando quiseres com <kbd>Esc</kbd> e usar as setas <kbd>←</kbd> <kbd>→</kbd> para navegar.</p>' },
   { title: 'O teu jogo', target: '.game-name',
     body: '<p>Dá um nome ao jogo. O nome vai para o prompt do AI e para o nome dos ficheiros exportados.</p>' },
   { title: 'Guardar e partilhar', target: '.project-bar',
     body: '<p>Os projetos ficam guardados <b>neste browser</b>. Trabalho novo só fica gravado depois de carregares em <b>Guardar</b> (pede um nome à primeira vez; depois guarda sozinho). O indicador ao lado diz se está <i>Por guardar</i> ou <i>Guardado</i>.</p>'+
           '<p><b>Exportar</b> e <b>Importar</b> passam o projeto para .json, para cópias de segurança e para partilhar.</p>' },
-  { title: 'Três separadores, três fases', target: 'nav.tabs',
-    body: '<p>Trabalha da esquerda para a direita, mas podes voltar atrás sempre que quiseres: mudar um cartão ou o fluxo não estraga nada, só tens de gerar o protótipo de novo.</p>' },
+  { title: 'Quatro separadores, quatro fases', target: 'nav.tabs',
+    body: '<p>Trabalha da esquerda para a direita, mas podes voltar atrás sempre que quiseres: mudar um cartão ou o fluxo não estraga nada, só tens de gerar o protótipo de novo.</p>'+
+          '<p>O fio que liga tudo é o <b>bloco</b> do fluxo: cada bloco pode ter cartões Gherkin e um texto nas regras.</p>' },
   { title: '1 · Fluxo: a barra de ferramentas', tab: 'flow', target: '.flow-toolbar',
     body: '<p>Escolhe o <b>tipo</b> do nó e carrega em <b>+ Nó</b>. <b>Ligar nós</b> liga dois nós com cliques, <b>↶ ↷</b> anulam e refazem, <b>Organizar</b> arruma tudo e <b>Grelha</b> alinha os nós ao arrastar.</p>' },
   { title: 'Os quatro tipos de nó (BGE)', target: '.legend',
@@ -1842,9 +2622,10 @@ const TOUR = [
   { title: 'Ligar nós', target: '#canvas', prep: ()=>{ canvas.classList.add('show-handles'); return ()=>canvas.classList.remove('show-handles'); },
     body: '<p>Arrasta a <b>bolinha</b> que aparece à direita de um nó até outro nó: fica <b style="color:#7be0b5">verde</b> se a ligação é válida e <b style="color:#e08b7b">vermelha</b> se for recusada. Largar no vazio cria um nó novo já ligado.</p>'+
           '<p>Clica numa ligação para a selecionar e carrega em <kbd>Del</kbd> para a apagar.</p>' },
-  { title: 'Editar um nó', target: '#inspector', skipIf: tourEmpty,
+  { title: 'O painel do bloco', target: '#blockPanel',
     prep: ()=>{ if(state.nodes.length) setSelection([state.nodes[0].id]); return ()=>setSelection([]); },
-    body: '<p>Com um nó selecionado, muda o <b>nome</b> e o <b>tipo</b> aqui. Com <kbd>Shift</kbd> + clique (ou arrastando uma caixa no fundo) selecionas vários e movê-los ou apagá-los de uma vez.</p>' },
+    body: '<p>Ao selecionar um bloco, este painel mostra tudo sobre ele: o <b>nome</b> e o <b>tipo</b>, os <b>cartões Gherkin</b> desse bloco (com <b>+ Cartão neste bloco</b>) e a caixa <b>Texto nas regras</b>, o parágrafo que o bloco ocupa no documento de regras.</p>'+
+          '<p>Com <kbd>Shift</kbd> + clique (ou uma caixa no fundo) selecionas vários blocos para os mover ou apagar de uma vez.</p>' },
   { title: 'Organizar e anular', target: '#layoutBtn',
     body: '<p><b>Organizar</b> coloca os nós sem ligações por trás de outros e com o fluxo de cima para baixo. Não gostaste? <kbd>Ctrl</kbd>+<kbd>Z</kbd> anula (até 100 passos, só no fluxo, não nos cartões).</p>' },
   { title: 'Todos os atalhos', target: '#shortcuts',
@@ -1852,6 +2633,10 @@ const TOUR = [
     body: '<p>A lista completa de atalhos e gestos está aqui, por baixo do canvas, e também na <b>Ajuda</b>.</p>' },
   { title: '2 · Cartões de Lógica', tab: 'cards', target: '.cards-toolbar',
     body: '<p>Cada regra do jogo é um <b>cartão</b>: um título, um tipo BGE e três frases: <b>Dado</b> (a situação), <b>Quando</b> (o que acontece) e <b>Então</b> (o resultado).</p>' },
+  { title: 'Cartões por âmbito', target: '#cardsFilter',
+    body: '<p>Os cartões organizam-se em quatro âmbitos:</p>'+
+          '<ul><li><b>Gerais</b>: regras do jogo inteiro.</li><li><b>Jogador</b>: o que um jogador pode ou não pode fazer.</li><li><b>Componentes</b>: ligados a um nó DATA (baralho, tabuleiro, tokens…).</li><li><b>Por bloco</b>: as regras de um bloco do fluxo.</li></ul>'+
+          '<p>A linha por baixo avisa dos blocos que ainda não têm cartões e deixa criar um com um clique.</p>' },
   { title: 'Escrever um cartão', target: '#cardForm',
     prep: ()=>{
       const wasOpen = $('cardForm').classList.contains('open');
@@ -1861,10 +2646,19 @@ const TOUR = [
         if(!wasOpen && empty) $('cancelCardBtn').click();
       };
     },
-    body: '<p>Os quatro campos são obrigatórios. Um bom cartão tem <b>uma regra só</b>, frases <b>concretas</b> (números, nomes e estados do jogo) e trata também os casos de erro e o fim de jogo.</p>'+
+    body: '<p>Escolhe o <b>âmbito</b> e, se o cartão for de um componente ou de um bloco, qual é. O título e as três frases são obrigatórios. Um bom cartão tem <b>uma regra só</b>, frases <b>concretas</b> (números, nomes e estados do jogo) e trata também os casos de erro e o fim de jogo.</p>'+
           '<p>Podes editar ou apagar cartões depois. Apagar não tem anular.</p>' },
-  { title: '3 · Gerar o protótipo', tab: 'gen', target: '.gen-actions',
-    body: '<p><b>Copiar prompt para o teu AI</b> junta o fluxo e os cartões num prompt bem estruturado. Cola-o no OpenCode, ChatGPT, Gemini ou Claude (precisa de pelo menos um cartão).</p>'+
+  { title: '3 · Regras: como se joga', tab: 'rules', target: '.rules-toolbar',
+    body: '<p>Aqui escreves, por palavras tuas, <b>como se joga</b>, para pessoas lerem. O documento é feito de <b>secções</b>: umas gerais (Objetivo, Preparação…) e uma por <b>bloco</b> do fluxo.</p>'+
+          '<p>O texto de um bloco é o mesmo aqui e no painel do bloco (separador Fluxo).</p>' },
+  { title: 'Uma secção por bloco', target: '#rulesList',
+    body: '<p>Cada secção mostra o texto do bloco e quantos cartões Gherkin ele tem. Usa <b>↑ ↓</b> para mudar a ordem. Os blocos que ainda não têm secção aparecem por cima e podes criá-las todas de uma vez, pela ordem do fluxo.</p>'+
+          '<p class="try"><b>Experimenta:</b> escreve uma frase numa secção e abre «Pré-visualizar o documento», por baixo da lista.</p>' },
+  { title: 'Exportar o documento', target: '.rules-actions',
+    body: '<p>Junta todas as secções com texto num só documento: <b>.md</b> (Markdown) ou <b>.html</b> (abre em qualquer browser e imprime-se para PDF).</p>'+
+          '<p>Marca <b>Incluir cartões Gherkin</b> para juntar as regras exatas a cada secção.</p>' },
+  { title: '4 · Gerar o protótipo', tab: 'gen', target: '.gen-actions',
+    body: '<p><b>Copiar prompt para o teu AI</b> junta o fluxo, o texto das regras e os cartões num prompt bem estruturado. Cola-o no OpenCode, ChatGPT, Gemini ou Claude (precisa de pelo menos um cartão).</p>'+
           '<p>O botão da API só funciona dentro do Claude.ai.</p>' },
   { title: 'Rever e testar', target: '.code-panel',
     body: '<p>Cola aqui o HTML que o AI devolveu (o markdown e o texto à volta são removidos). Carrega em <b>Descarregar .html</b> e abre o ficheiro no browser para <b>jogar</b> o protótipo e ver se as regras se comportam como esperas.</p>'+
@@ -1905,8 +2699,7 @@ async function tourGo(i, dir){
   if(s.prep) tourCleanup = s.prep() || null;
   await nextFrame();
 
-  const offer = !!s.offerExample && state.nodes.length === 0 && state.cards.length === 0;
-  tourWillLoad = offer && $('tourExample').checked;
+  const offer = !!s.offerExample && state.nodes.length === 0 && state.cards.length === 0 && state.rules.length === 0;
   const list = tourSteps(), n = list.indexOf(s);
   $('tourStep').textContent = 'Passo '+(n+1)+' de '+list.length;
   $('tourTitle').textContent = s.title;
@@ -1984,10 +2777,8 @@ async function tourNext(){
     if(idx.some(p=>p.slug === EXAMPLE_SLUG)) await loadProject(EXAMPLE_SLUG, true);
     else await loadTicTacToeExample(true);
   }
-  tourWillLoad = false;
   await tourGo(tourIdx+1, 1);
 }
-$('tourExample').addEventListener('change', ()=>{ if(tourActive) tourGo(tourIdx, 1); });
 $('tourNext').addEventListener('click', tourNext);
 $('tourPrev').addEventListener('click', ()=>tourGo(tourIdx-1, -1));
 $('tourSkip').addEventListener('click', ()=>endTour(false));
